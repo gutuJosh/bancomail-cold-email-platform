@@ -1,0 +1,146 @@
+@import '@/styles/variables';
+@import '@/styles/mixins';
+
+.dashboard {
+  min-height: 100vh;
+  padding: $spacing-xl 0;
+  background-color: $bg-color;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: $spacing-lg;
+  margin-bottom: $spacing-2xl;
+}
+
+.statCard {
+  @include card;
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+  padding: $spacing-lg;
+}
+
+.statIcon {
+  font-size: 2.5rem;
+  width: 60px;
+  height: 60px;
+  @include flex-center;
+  background-color: $bg-color;
+  border-radius: $border-radius;
+}
+
+.statContent {
+  flex: 1;
+
+  h3 {
+    font-size: 0.875rem;
+    color: $text-light;
+    margin-bottom: $spacing-xs;
+    font-weight: 500;
+  }
+}
+
+.statNumber {
+  font-size: 2rem;
+  font-weight: 700;
+  color: $primary-color;
+}
+
+.quickActions {
+  margin-bottom: $spacing-2xl;
+
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: $spacing-lg;
+    color: $text-color;
+  }
+}
+
+.actionButtons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: $spacing-md;
+}
+
+.actionBtn {
+  @include button-primary;
+  padding: $spacing-lg;
+  font-size: 1rem;
+}
+
+.recentCampaigns {
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: $spacing-lg;
+    color: $text-color;
+  }
+}
+
+.noCampaigns {
+  @include card;
+  text-align: center;
+  color: $text-light;
+  padding: $spacing-2xl;
+}
+
+.campaignsList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.campaignItem {
+  @include card;
+  @include flex-between;
+  padding: $spacing-lg;
+  transition: transform $transition-fast, box-shadow $transition-fast;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+.campaignInfo {
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: $text-color;
+    margin-bottom: $spacing-xs;
+  }
+
+  p {
+    color: $text-light;
+    font-size: 0.875rem;
+  }
+}
+
+.badge {
+  padding: $spacing-xs $spacing-md;
+  border-radius: $border-radius-sm;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+
+  &.draft {
+    background-color: $text-lighter;
+    color: white;
+  }
+
+  &.active {
+    background-color: $success-color;
+    color: white;
+  }
+
+  &.paused {
+    background-color: $warning-color;
+    color: white;
+  }
+
+  &.completed {
+    background-color: $primary-color;
+    color: white;
+  }
+}

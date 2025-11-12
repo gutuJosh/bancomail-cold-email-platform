@@ -1,0 +1,86 @@
+@mixin button-base {
+  padding: $spacing-sm $spacing-lg;
+  border-radius: $border-radius;
+  font-weight: 500;
+  border: none;
+  transition: all $transition-fast;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+@mixin button-primary {
+  @include button-base;
+  background-color: $primary-color;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: $primary-dark;
+  }
+}
+
+@mixin button-secondary {
+  @include button-base;
+  background-color: $secondary-color;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: $secondary-dark;
+  }
+}
+
+@mixin button-outline {
+  @include button-base;
+  background-color: transparent;
+  border: 2px solid $primary-color;
+  color: $primary-color;
+
+  &:hover:not(:disabled) {
+    background-color: $primary-color;
+    color: white;
+  }
+}
+
+@mixin card {
+  background-color: $bg-white;
+  border-radius: $border-radius-lg;
+  padding: $spacing-xl;
+  box-shadow: $shadow-md;
+}
+
+@mixin input-base {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  border: 2px solid $border-color;
+  border-radius: $border-radius;
+  font-size: 1rem;
+  transition: border-color $transition-fast;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+  }
+
+  &::placeholder {
+    color: $text-lighter;
+  }
+}
+
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

@@ -1,0 +1,99 @@
+@import '@/styles/variables';
+@import '@/styles/mixins';
+
+.prospectsPage {
+  min-height: 100vh;
+  padding: $spacing-xl 0;
+  background-color: $bg-color;
+}
+
+.header {
+  @include flex-between;
+  margin-bottom: $spacing-xl;
+}
+
+.uploadBtn {
+  @include button-primary;
+}
+
+.emptyState {
+  @include card;
+  text-align: center;
+  padding: $spacing-2xl;
+  color: $text-light;
+
+  p {
+    margin-bottom: $spacing-lg;
+  }
+}
+
+.tableWrapper {
+  @include card;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    background-color: $bg-color;
+    
+    th {
+      padding: $spacing-md;
+      text-align: left;
+      font-weight: 600;
+      color: $text-color;
+      border-bottom: 2px solid $border-color;
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid $border-color;
+      transition: background-color $transition-fast;
+
+      &:hover {
+        background-color: $bg-color;
+      }
+    }
+
+    td {
+      padding: $spacing-md;
+      color: $text-light;
+    }
+  }
+}
+
+.badge {
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $border-radius-sm;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+
+  &.pending {
+    background-color: $text-lighter;
+    color: white;
+  }
+
+  &.sent {
+    background-color: $primary-color;
+    color: white;
+  }
+
+  &.opened {
+    background-color: $warning-color;
+    color: white;
+  }
+
+  &.replied {
+    background-color: $success-color;
+    color: white;
+  }
+
+  &.bounced {
+    background-color: $error-color;
+    color: white;
+  }
+}

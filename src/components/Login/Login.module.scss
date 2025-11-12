@@ -1,0 +1,93 @@
+@import '@/styles/variables';
+@import '@/styles/mixins';
+
+.loginContainer {
+  min-height: 100vh;
+  @include flex-center;
+  background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
+  padding: $spacing-md;
+}
+
+.loginCard {
+  @include card;
+  max-width: 450px;
+  width: 100%;
+  text-align: center;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: $primary-color;
+  margin-bottom: $spacing-sm;
+}
+
+.subtitle {
+  color: $text-light;
+  margin-bottom: $spacing-xl;
+}
+
+.form {
+  margin-top: $spacing-xl;
+}
+
+.formGroup {
+  margin-bottom: $spacing-lg;
+  text-align: left;
+
+  label {
+    display: block;
+    margin-bottom: $spacing-sm;
+    font-weight: 500;
+    color: $text-color;
+  }
+}
+
+.input {
+  @include input-base;
+}
+
+.errorText {
+  display: block;
+  color: $error-color;
+  font-size: 0.875rem;
+  margin-top: $spacing-xs;
+}
+
+.errorMessage {
+  background-color: $error-bg;
+  color: $error-color;
+  padding: $spacing-md;
+  border-radius: $border-radius;
+  margin-bottom: $spacing-md;
+  border-left: 4px solid $error-color;
+  text-align: left;
+}
+
+.submitBtn {
+  @include button-primary;
+  width: 100%;
+  padding: $spacing-md;
+  font-size: 1rem;
+  margin-top: $spacing-md;
+}
+
+.help {
+  margin-top: $spacing-xl;
+  padding-top: $spacing-lg;
+  border-top: 1px solid $border-color;
+
+  p {
+    color: $text-light;
+    margin-bottom: $spacing-sm;
+  }
+
+  a {
+    color: $primary-color;
+    font-weight: 500;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

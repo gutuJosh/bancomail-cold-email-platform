@@ -1,0 +1,56 @@
+@import '@/styles/variables';
+@import '@/styles/mixins';
+
+.newCampaignPage {
+  min-height: 100vh;
+  padding: $spacing-xl 0;
+  background-color: $bg-color;
+}
+
+.form {
+  @include card;
+  max-width: 800px;
+}
+
+.formGroup {
+  margin-bottom: $spacing-lg;
+
+  label {
+    display: block;
+    margin-bottom: $spacing-sm;
+    font-weight: 500;
+    color: $text-color;
+  }
+}
+
+.input,
+.textarea {
+  @include input-base;
+}
+
+.textarea {
+  resize: vertical;
+  font-family: inherit;
+}
+
+.error {
+  display: block;
+  color: $error-color;
+  font-size: 0.875rem;
+  margin-top: $spacing-xs;
+}
+
+.actions {
+  display: flex;
+  gap: $spacing-md;
+  justify-content: flex-end;
+  margin-top: $spacing-xl;
+}
+
+.cancelBtn {
+  @include button-outline;
+}
+
+.submitBtn {
+  @include button-primary;
+}

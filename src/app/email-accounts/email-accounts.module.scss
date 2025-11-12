@@ -1,0 +1,138 @@
+@import '@/styles/variables';
+@import '@/styles/mixins';
+
+.accountsPage {
+  min-height: 100vh;
+  padding: $spacing-xl 0;
+  background-color: $bg-color;
+}
+
+.header {
+  @include flex-between;
+  margin-bottom: $spacing-xl;
+}
+
+.addBtn {
+  @include button-primary;
+}
+
+.form {
+  @include card;
+  margin-bottom: $spacing-xl;
+  max-width: 600px;
+}
+
+.formGroup {
+  margin-bottom: $spacing-lg;
+
+  label {
+    display: block;
+    margin-bottom: $spacing-sm;
+    font-weight: 500;
+    color: $text-color;
+  }
+}
+
+.input {
+  @include input-base;
+}
+
+.error {
+  display: block;
+  color: $error-color;
+  font-size: 0.875rem;
+  margin-top: $spacing-xs;
+}
+
+.submitBtn {
+  @include button-primary;
+  width: 100%;
+}
+
+.emptyState {
+  @include card;
+  text-align: center;
+  padding: $spacing-2xl;
+  color: $text-light;
+}
+
+.accountsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: $spacing-lg;
+}
+
+.accountCard {
+  @include card;
+  @include flex-between;
+  padding: $spacing-lg;
+}
+
+.accountInfo {
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: $text-color;
+    margin-bottom: $spacing-xs;
+  }
+
+  p {
+    color: $text-light;
+    margin-bottom: $spacing-sm;
+  }
+}
+
+.provider {
+  display: inline-block;
+  padding: $spacing-xs $spacing-sm;
+  background-color: $bg-color;
+  border-radius: $border-radius-sm;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: $text-color;
+  text-transform: uppercase;
+}
+
+.accountActions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  align-items: flex-end;
+}
+
+.badge {
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $border-radius-sm;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+
+  &.active {
+    background-color: $success-color;
+    color: white;
+  }
+
+  &.inactive {
+    background-color: $text-lighter;
+    color: white;
+  }
+
+  &.error {
+    background-color: $error-color;
+    color: white;
+  }
+}
+
+.deleteBtn {
+  padding: $spacing-xs $spacing-md;
+  background-color: $error-color;
+  color: white;
+  border: none;
+  border-radius: $border-radius;
+  cursor: pointer;
+  font-size: 0.875rem;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}

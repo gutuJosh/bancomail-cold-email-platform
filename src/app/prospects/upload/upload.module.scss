@@ -1,0 +1,100 @@
+@import '@/styles/variables';
+@import '@/styles/mixins';
+
+.uploadPage {
+  min-height: 100vh;
+  padding: $spacing-xl 0;
+  background-color: $bg-color;
+}
+
+.uploadCard {
+  @include card;
+  max-width: 600px;
+}
+
+.formGroup {
+  margin-bottom: $spacing-lg;
+
+  label {
+    display: block;
+    margin-bottom: $spacing-sm;
+    font-weight: 500;
+    color: $text-color;
+  }
+}
+
+.select {
+  @include input-base;
+}
+
+.fileInput {
+  width: 100%;
+  padding: $spacing-md;
+  border: 2px dashed $border-color;
+  border-radius: $border-radius;
+  cursor: pointer;
+  transition: border-color $transition-fast;
+
+  &:hover {
+    border-color: $primary-color;
+  }
+}
+
+.hint {
+  margin-top: $spacing-sm;
+  font-size: 0.875rem;
+  color: $text-light;
+}
+
+.errors {
+  background-color: $error-bg;
+  border: 1px solid $error-color;
+  border-radius: $border-radius;
+  padding: $spacing-md;
+  margin-bottom: $spacing-lg;
+
+  h4 {
+    color: $error-color;
+    margin-bottom: $spacing-sm;
+  }
+
+  ul {
+    margin-left: $spacing-lg;
+    color: $error-color;
+    font-size: 0.875rem;
+  }
+
+  li {
+    margin-bottom: $spacing-xs;
+  }
+}
+
+.progress {
+  width: 100%;
+  height: 8px;
+  background-color: $border-color;
+  border-radius: $border-radius;
+  overflow: hidden;
+  margin-bottom: $spacing-lg;
+}
+
+.progressBar {
+  height: 100%;
+  background-color: $primary-color;
+  transition: width $transition-normal;
+}
+
+.actions {
+  display: flex;
+  gap: $spacing-md;
+  justify-content: flex-end;
+  margin-top: $spacing-xl;
+}
+
+.cancelBtn {
+  @include button-outline;
+}
+
+.uploadBtn {
+  @include button-primary;
+}
