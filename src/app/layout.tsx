@@ -3,7 +3,7 @@ import { Providers } from './providers';
 import '@/styles/globals.scss';
 
 export const metadata: Metadata = {
-  title: 'Woodpecker Email Client',
+  title: 'Bancomail Email Client',
   description: 'Email campaign management with Woodpecker API',
 };
 

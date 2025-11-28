@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { fetchCampaignsStart, fetchCampaignsSuccess } from '@/store/slices/campaignsSlice';
@@ -13,10 +13,10 @@ import styles from './upload.module.scss';
 export default function UploadProspectsPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, apiKey } = useAppSelector((state) => state.auth);
   const { campaigns } = useAppSelector((state) => state.campaigns);
   const { uploadProgress } = useAppSelector((state) => state.prospects);
-  const [selectedCampaign, setSelectedCampaign] = useState<number | null>(null);
+  const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
 
@@ -31,7 +31,7 @@ export default function UploadProspectsPage() {
   const loadCampaigns = async () => {
     try {
       dispatch(fetchCampaignsStart());
-      const data = await campaignsAPI.getAll();
+      const data = await campaignsAPI.getAll(apiKey as string);
       dispatch(fetchCampaignsSuccess(data));
     } catch (error) {
       console.error('Failed to load campaigns');
@@ -45,25 +45,53 @@ export default function UploadProspectsPage() {
     }
   };
 
-  const handleUpload = async () => {
+  const handleUpload = async (event : FormEvent) => {
+    event.preventDefault();
     if (!file || !selectedCampaign) {
       alert('Please select a campaign and CSV file');
       return;
     }
 
-    try {
-      dispatch(uploadProspectsStart());
-      
-      const parsed = await parseCSV(file);
-      const { valid, errors: validationErrors } = validateProspects(parsed);
 
+      dispatch(uploadProspectsStart());
+
+      const formData = new FormData();
+      formData.append('csvFile', file);
+      formData.append('apiKey', apiKey as string);
+      formData.append('campaignId', selectedCampaign);
+
+      try {
+        const response = await fetch('/api/prospects/upload', {
+          method: 'POST',
+          // DO NOT set Content-Type header; FormData does this automatically
+          body: formData,
+        });
+
+        const result = await response.json();
+      
+        if (response.ok) {
+          
+          console.log(result.data);
+        } else {
+          console.log(response)
+        }
+    } catch (error:any) {
+       dispatch(uploadProspectsFailure(error?.message));
+    }
+
+    return;
+     /*  
+      const parsed = await parseCSV(file);
+     
+      const { valid, errors: validationErrors } = validateProspects(parsed);
+  
       if (validationErrors.length > 0) {
         setErrors(validationErrors);
         dispatch(uploadProspectsFailure('Validation errors found'));
         return;
       }
 
-      const uploaded = await prospectsAPI.upload(selectedCampaign, valid);
+      const uploaded = await prospectsAPI.upload(apiKey as string, selectedCampaign, valid);
       dispatch(uploadProspectsSuccess(uploaded));
       
       alert(`Successfully uploaded ${valid.length} prospects!`);
@@ -72,6 +100,7 @@ export default function UploadProspectsPage() {
       dispatch(uploadProspectsFailure(error.message));
       alert('Failed to upload prospects');
     }
+   */
   };
 
   if (!isAuthenticated) return null;
@@ -83,7 +112,7 @@ export default function UploadProspectsPage() {
         <div className="container">
           <h1 className="page-title">Upload Prospects</h1>
 
-          <div className={styles.uploadCard}>
+          <form className={styles.uploadCard} encType="multipart/form-data">
             <div className={styles.formGroup}>
               <label htmlFor="campaign">Select Campaign *</label>
               <select
@@ -141,7 +170,7 @@ export default function UploadProspectsPage() {
                 Upload Prospects
               </button>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </>

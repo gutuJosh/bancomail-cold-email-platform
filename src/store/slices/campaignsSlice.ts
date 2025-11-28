@@ -1,14 +1,19 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+type UnknownKeyedObject = {
+  [key: string | number]: unknown;
+};
+
 export interface Campaign {
   id: number;
   name: string;
   subject: string;
   content: string;
-  status: 'draft' | 'active' | 'paused' | 'completed';
+  status: 'DRAFT' | 'STOPPED' | 'PAUSED' | 'COMPLETED' | 'RUNNING' | 'EDITED';
   created_at: string;
   updated_at: string;
   total_prospects: number;
+  stats?:UnknownKeyedObject
 }
 
 interface CampaignsState {

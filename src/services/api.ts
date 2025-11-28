@@ -7,6 +7,10 @@ const api = axios.create({
   },
 });
 
+export type UnknownKeyedObject = {
+  [key: string | number]: unknown;
+};
+
 export const authAPI = {
   login: async (apiKey: string) => {
     const response = await api.post('/auth/login', { apiKey });
@@ -23,8 +27,8 @@ export const authAPI = {
 };
 
 export const emailAccountsAPI = {
-  getAll: async () => {
-    const response = await api.get('/email-accounts');
+  getAll: async (apiKey:string) => {
+    const response = await api.get(`/email-accounts?apiKey=${apiKey}`);
     return response.data;
   },
   create: async (data: { email: string; name: string; provider: string }) => {
@@ -38,15 +42,15 @@ export const emailAccountsAPI = {
 };
 
 export const campaignsAPI = {
-  getAll: async () => {
-    const response = await api.get('/campaigns');
+  getAll: async (apiKey:string) => {
+    const response = await api.get(`/campaigns?apiKey=${apiKey}`);
     return response.data;
   },
   getById: async (id: number) => {
     const response = await api.get(`/campaigns/${id}`);
     return response.data;
   },
-  create: async (data: { name: string; subject: string; content: string }) => {
+  create: async (data: { name: string; subject: string; content: string,  email_account_ids:[], settings:UnknownKeyedObject, steps:UnknownKeyedObject }) => {
     const response = await api.post('/campaigns', data);
     return response.data;
   },
@@ -69,23 +73,47 @@ export const campaignsAPI = {
 };
 
 export const prospectsAPI = {
-  getAll: async (campaignId?: number) => {
-    const url = campaignId ? `/prospects?campaignId=${campaignId}` : '/prospects';
+  getAll: async (parameters:{apiKey: string, campaignId?: number, page?: number, per_page?: number, sort?: string}) => {
+
+    let query = '?';
+    
+    // Object.entries() gives you an array of [key, value] tuples.
+    for (const [key, value] of Object.entries(parameters)) {
+      
+      // The 'value' is correctly typed as 'string | number | undefined'.
+      
+      // We check if the value is defined and not null (standard way to handle optional properties)
+      if (value !== undefined && value !== null) { 
+          query += `${key}=${encodeURIComponent(value)}&`;
+      }
+    }
+    
+    // Remove the trailing '&' or '?' if no params were added
+    if (query.endsWith('&')) {
+        query = query.slice(0, -1);
+    } else if (query === '?') {
+        query = '';
+    }
+
+    
+    const url = `/prospects${query}`;
     const response = await api.get(url);
     return response.data;
   },
-  upload: async (campaignId: number, prospects: any[]) => {
-    const response = await api.post('/prospects/upload', { campaignId, prospects });
+  upload: async (apiKey:string, campaignId: number, prospects: any[]) => {
+    const response = await api.post('/prospects/upload', { apiKey, campaignId, prospects });
     return response.data;
   },
 };
 
 export const statsAPI = {
   getCampaignStats: async (campaignId?: number) => {
-    const url = campaignId ? `/stats/${campaignId}` : '/stats';
+    const url = campaignId ? `/stats?campaignId=${campaignId}` : '/stats'; 
     const response = await api.get(url);
     return response.data;
   },
 };
+
+
 
 export default api;

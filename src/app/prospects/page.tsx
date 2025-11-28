@@ -1,31 +1,53 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { fetchProspectsStart, fetchProspectsSuccess, fetchProspectsFailure } from '@/store/slices/prospectsSlice';
-import { prospectsAPI } from '@/services/api';
+import api, { prospectsAPI } from '@/services/api';
 import Navbar from '@/components/Navbar/Navbar';
 import styles from './prospects.module.scss';
+
+interface FiltersData {
+  apiKey:string,
+  per_page: number;
+  page: number;
+  sort?: string;
+}
+
 
 export default function ProspectsPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, apiKey } = useAppSelector((state) => state.auth);
   const { prospects, loading, error } = useAppSelector((state) => state.prospects);
+  const [filters, setFilters] = useState<FiltersData | null>(null)
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/');
       return;
     }
-    loadProspects();
-  }, [isAuthenticated, router]);
+    if(apiKey){
+        setFilters({
+          'apiKey':apiKey,
+          'per_page': 100,
+          'page':1,
+        })
+    }
+  }, [isAuthenticated, apiKey, router]);
+
+  useEffect(() => {
+    if(!filters){
+      return;
+    }
+     loadProspects();
+  },[filters])
 
   const loadProspects = async () => {
     try {
       dispatch(fetchProspectsStart());
-      const data = await prospectsAPI.getAll();
+      const data = await prospectsAPI.getAll(filters as FiltersData);
       dispatch(fetchProspectsSuccess(data));
     } catch (error: any) {
       dispatch(fetchProspectsFailure(error.message));

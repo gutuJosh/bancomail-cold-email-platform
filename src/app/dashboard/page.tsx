@@ -10,11 +10,14 @@ import Navbar from '@/components/Navbar/Navbar';
 import styles from './dashboard.module.scss';
 
 export default function Dashboard() {
+
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
-  const { campaigns, loading: campaignsLoading } = useAppSelector((state) => state.campaigns);
-  const { stats, loading: statsLoading } = useAppSelector((state) => state.stats);
+  const { isAuthenticated, apiKey } = useAppSelector((state) => state.auth);
+  const { campaigns, loading } = useAppSelector((state) => state.campaigns);
+  //const { stats, loading: statsLoading } = useAppSelector((state) => state.stats);
+
+
   const [overview, setOverview] = useState({
     totalCampaigns: 0,
     activeCampaigns: 0,
@@ -31,27 +34,31 @@ export default function Dashboard() {
     loadData();
   }, [isAuthenticated, router]);
 
+
+
   useEffect(() => {
     const totalCampaigns = campaigns.length;
-    const activeCampaigns = campaigns.filter(c => c.status === 'active').length;
-    const totalSent = stats.reduce((sum, s) => sum + s.total_sent, 0);
-    const totalReplies = stats.reduce((sum, s) => sum + s.total_replied, 0);
+    const activeCampaigns = campaigns.filter(c => c.status === 'RUNNING').length;
+    const totalCompleated = campaigns.filter(c => c.status === 'COMPLETED').length;
+    const totalSent = totalCompleated > 0 ? campaigns.filter(c => c.stats !== undefined && c?.stats?.delivery !== 0).length : 0
+    const totalReplies = totalCompleated > 0 ? campaigns.filter(c => c.stats !== undefined && c?.stats?.replied !== 0).length : 0
 
     setOverview({ totalCampaigns, activeCampaigns, totalSent, totalReplies });
-  }, [campaigns, stats]);
+
+  }, [campaigns]);
 
   const loadData = async () => {
     try {
       dispatch(fetchCampaignsStart());
       dispatch(fetchStatsStart());
 
-      const [campaignsData, statsData] = await Promise.all([
-        campaignsAPI.getAll(),
-        statsAPI.getCampaignStats(),
+      const [campaignsData /*statsData*/] = await Promise.all([
+        campaignsAPI.getAll(apiKey as string),
+        //statsAPI.getCampaignStats(),
       ]);
 
       dispatch(fetchCampaignsSuccess(campaignsData));
-      dispatch(fetchStatsSuccess(statsData));
+      //dispatch(fetchStatsSuccess(statsData));
     } catch (error: any) {
       dispatch(fetchCampaignsFailure(error.message));
       dispatch(fetchStatsFailure(error.message));
@@ -121,7 +128,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {campaignsLoading || statsLoading ? (
+          {loading ? (
             <div className="loading">Loading dashboard data...</div>
           ) : (
             <div className={styles.recentCampaigns}>

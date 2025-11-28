@@ -7,6 +7,7 @@ export interface EmailAccount {
   provider: string;
   status: 'active' | 'inactive' | 'error';
   created_at: string;
+  from_email:string;
 }
 
 interface EmailAccountsState {

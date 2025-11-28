@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useState, useEffect } from 'react';
+//import { useForm } from 'react-hook-form';
+import useAuthentication from '@/utils/hooks/useAuthentication';
 import { useAppDispatch } from '@/store/hooks';
 import { loginStart, loginSuccess, loginFailure } from '@/store/slices/authSlice';
-import { authAPI } from '@/services/api';
+//import { authAPI } from '@/services/api';
 import styles from './Login.module.scss';
 
 interface LoginFormData {
@@ -13,9 +14,11 @@ interface LoginFormData {
 
 export default function Login() {
   const dispatch = useAppDispatch();
-  const [error, setError] = useState<string | null>(null);
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
-
+  const [apiKey, setApiKey] = useState<string>('');
+  const [apiKeyValue, setApiKeyValue] = useState<string>('');
+  const {user, isLoading, error} = useAuthentication(apiKey);
+ //const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
+/*
   const onSubmit = async (data: LoginFormData) => {
     dispatch(loginStart());
     setError(null);
@@ -32,46 +35,81 @@ export default function Login() {
       dispatch(loginFailure(errorMessage));
     }
   };
+*/
 
-  return (
-    <div className={styles.loginContainer}>
-      <div className={styles.loginCard}>
-        <h1 className={styles.title}>Woodpecker Email Client</h1>
-        <p className={styles.subtitle}>Enter your Woodpecker API key to continue</p>
-        
-        <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-          <div className={styles.formGroup}>
-            <label htmlFor="apiKey">API Key</label>
-            <input
-              id="apiKey"
-              type="password"
-              placeholder="Enter your Woodpecker API key"
-              {...register('apiKey', { required: 'API key is required' })}
-              className={styles.input}
-            />
-            {errors.apiKey && (
-              <span className={styles.errorText}>{errors.apiKey.message}</span>
-            )}
-          </div>
+useEffect(() => {
+ if(!user){
+  return;
+ }
 
-          {error && (
-            <div className={styles.errorMessage}>
-              {error}
+  dispatch(loginSuccess({
+    apiKey: user.apiKey as string,
+    user: {'email' : user.user_email as string, 'name' : user.name as string},
+  }));
+
+
+
+},[user])
+
+
+  if(isLoading){
+     return(
+      <div className={styles.loginContainer}>
+       <div className={styles.loginCard}>
+         <h1 className={styles.title}>Loading...</h1>
+      </div>
+      </div>
+     )
+  }
+
+  if(!user) {
+
+    return (
+      <div className={styles.loginContainer}>
+        <div className={styles.loginCard}>
+          <h1 className={styles.title}>Woodpecker Email Client</h1>
+          <p className={styles.subtitle}>Enter your Woodpecker API key to continue</p>
+          
+          <form className={styles.form}>
+            <div className={styles.formGroup}>
+              <label htmlFor="apiKey">API Key</label>
+              <input
+                id="apiKey"
+                type="password"
+                placeholder="Enter your Woodpecker API key"
+                onChange={(e) => {
+                  setApiKeyValue(e.target.value);
+                }}
+                className={styles.input}
+              />
+              {error && (
+                <span className={styles.errorText}>{error}</span>
+              )}
             </div>
-          )}
 
-          <button type="submit" className={styles.submitBtn}>
-            Login
-          </button>
-        </form>
+            {error && (
+              <div className={styles.errorMessage}>
+                {error}
+              </div>
+            )}
 
-        <div className={styles.help}>
-          <p>Don&apos;t have an API key?</p>
-          <a href="https://app.woodpecker.co/settings/api" target="_blank" rel="noopener noreferrer">
-            Get your API key from Woodpecker
-          </a>
+            <button type="submit" className={styles.submitBtn} onClick={(e) => {
+              e.preventDefault();
+              dispatch(loginStart());
+              setApiKey(apiKeyValue);
+            }}>
+              Login
+            </button>
+          </form>
+
+          <div className={styles.help}>
+            <p>Don&apos;t have an API key?</p>
+            <a href="https://app.woodpecker.co/settings/api" target="_blank" rel="noopener noreferrer">
+              Get your API key from Woodpecker
+            </a>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+ }
 }

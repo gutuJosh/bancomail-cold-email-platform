@@ -1,30 +1,35 @@
+// app/api/woodpecker/auth/route.ts
+
 import { NextResponse } from 'next/server';
+// Assuming you created AuthRequestBody in a types file
+// import { AuthRequestBody } from '@/types/api'; 
 
 const WOODPECKER_API_URL = `${process.env.API_SRV_ROOT}`;
 
-export async function GET(request: Request) {
+export async function POST(request: Request) {
   try {
     // 1. Get client data and assert the type
-    const { searchParams } = new URL(request.url);
-    const apiKey = searchParams.get('apiKey');
-    const page = searchParams.get('page');
-    const per_page = searchParams.get('per_page');
-    const sort = searchParams.get('sort');
+    const { apiKey, path } = (await request.json()) as { apiKey: string, path: string }; 
     
     // 2. Validate essential data (Optional but good practice)
-    if (!apiKey) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!apiKey || !path) {
+      return NextResponse.json({ message: `Missing parameters ${!apiKey ? 'apiKey' : 'path'}` }, { status: 400 });
     }
+
+   
+
     // 3. Make the secure server-to-server request to Woodpecker
-    const wpResponse = await fetch(`${WOODPECKER_API_URL}/v1/prospects?page=${page}&per_page=${per_page}${sort !== undefined && sort !== null ? '&sort='+sort : ''}`, {
+    const wpResponse = await fetch(`${WOODPECKER_API_URL}${path}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         // Use the API key received from the client for authorization
         'x-api-key': `${apiKey}`, 
       },
+      // If the endpoint requires a body (e.g., for OAuth token exchange), add it here:
+      // body: JSON.stringify({ grant_type: 'client_credentials' }), 
     });
-
+    
     // 4. Handle Woodpecker's response status
     if (!wpResponse.ok) {
       const errorData = await wpResponse.json();
@@ -40,20 +45,20 @@ export async function GET(request: Request) {
             'statusCode': wpResponse.status,
             'status':'OK'
          };
-         return NextResponse.json(data, { status: 204 });
+         return NextResponse.json(data, { status: 200 });
     }
 
-
-     // 5. Success: Forward the data to the client
+    // 5. Success: Forward the data to the client
     const data = await wpResponse.json();
     data['statusCode'] = wpResponse.status;
     data['status'] = 'OK';
 
     return NextResponse.json(data, { status: 200 });
 
-  } catch (error) {
+  } 
+  catch (error) {
     // Catch any network or parsing errors (e.g., JSON parse failed)
-  
+    
     // Use the TypeScript fix for 'unknown' type errors
     if (error instanceof Error) {
         console.error('Proxy Error:', error.message);
@@ -61,6 +66,8 @@ export async function GET(request: Request) {
         console.error('Unknown proxy error:', error);
     }
 
-    return NextResponse.json({ message: 'Internal Server Error during proxy fetch campaigns.' }, { status: 500 });
+    
+
+    return NextResponse.json({ message: 'Internal Server Error during proxy execution.' }, { status: 500 });
   }
 }

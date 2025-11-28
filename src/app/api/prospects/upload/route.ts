@@ -1,26 +1,116 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { parse } from 'csv-parse/sync'; // Use the synchronous version
 
-export async function POST(request: NextRequest) {
+
+// Define the expected CSV record type
+interface CsvRecord {
+  id: string;
+  name: string;
+  price: number;
+}
+
+
+
+
+export async function POST(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const apiKey = cookieStore.get('woodpecker_api_key');
+    console.log('IM HERE---->')
+    // 1. Process the multipart/form-data
+   const formData = await req.formData();
+   const fileEntry = formData.get('csvFile'); 
+   const apiKey = formData.get('apiKey'); 
+   const campaignId = formData.get('campaignId'); 
+   
 
-    if (!apiKey) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // 2. Validate essential data (Optional but good practice)
+    if (!apiKey || !campaignId) {
+       return NextResponse.json({ message: `Missing parameters ${!apiKey ? 'apiKey' : 'campaignId'}` }, { status: 400 });
+    }
+    if (!fileEntry || typeof fileEntry === 'string') {
+      return NextResponse.json({ message: 'No file uploaded or incorrect key.' }, { status: 400 });
     }
 
-    const { campaignId, prospects } = await request.json();
+    const file = fileEntry as File;
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer); // Convert ArrayBuffer to Node.js Buffer
+    const csvTextContent = buffer.toString('utf8'); // Convert Buffer to string
 
-    const uploadedProspects = prospects.map((p: any, index: number) => ({
-      id: Date.now() + index,
-      ...p,
-      campaign_id: campaignId,
-      status: 'pending',
-    }));
+    const records: CsvRecord[] = parse(csvTextContent, {
+      columns: true,
+      skip_empty_lines: true,
+      cast: (value, context) => {
+        if (context.column === 'price') {
+          const num = parseFloat(value);
+          return isNaN(num) ? 0 : num;
+        }
+        return value;
+      },
+    }) as CsvRecord[];
+    
 
-    return NextResponse.json(uploadedProspects, { status: 201 });
+    const body = {
+       "campaign": {
+                 "campaign_id": campaignId,
+      },
+      "prospects":records
+    }
+
+    console.log('RECORDS--->', records)
+
+    return NextResponse.json(body, { status: 200 });
+
+        
+    // 5. Make the secure server-to-server request to Woodpecker
+    const wpResponse = await fetch(`${process.env.API_SRV_ROOT}/v1/add_prospects_campaign`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // Use the API key received from the client for authorization
+        'x-api-key': `${apiKey}`, 
+      },
+      // If the endpoint requires a body (e.g., for OAuth token exchange), add it here:
+      // body: JSON.stringify({ grant_type: 'client_credentials' }), 
+    });
+    
+    // 6. Handle Woodpecker's response status
+    if (!wpResponse.ok) {
+      const errorData = await wpResponse.json();
+    
+      // Forward the error status/message from Woodpecker to the client
+      return NextResponse.json(errorData, { status: wpResponse.status });
+    }
+
+    // Se non c'è contenuto, restituisci un oggetto vuoto per evitare errori di parsing JSON
+    if (wpResponse.status === 204) {
+    
+          const data = {
+            'statusCode': wpResponse.status,
+            'status':'OK'
+          };
+          return NextResponse.json(data, { status: 200 });
+    }
+
+    // 7. Success: Forward the data to the client
+    const data = await wpResponse.json();
+    data['statusCode'] = wpResponse.status;
+    data['status'] = 'OK';
+
+    return NextResponse.json(data, { status: 200 });
+
+    // 5. Return the structured data
+    return NextResponse.json({
+      message: 'CSV processed successfully.',
+      count: records.length,
+      data: records,
+    });
+
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to upload prospects' }, { status: 500 });
+    if (error instanceof Error) {
+      console.error('File Upload/Processing Error:', error.message);
+      return NextResponse.json({ message: `Server error: ${error.message}` }, { status: 500 });
+    }
+    return NextResponse.json({ message: 'An unknown server error occurred.' }, { status: 500 });
   }
 }
+
+

@@ -8,10 +8,11 @@ import { campaignsAPI } from '@/services/api';
 import Navbar from '@/components/Navbar/Navbar';
 import styles from './campaigns.module.scss';
 
+
 export default function CampaignsPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, apiKey } = useAppSelector((state) => state.auth);
   const { campaigns, loading, error } = useAppSelector((state) => state.campaigns);
 
   useEffect(() => {
@@ -25,7 +26,7 @@ export default function CampaignsPage() {
   const loadCampaigns = async () => {
     try {
       dispatch(fetchCampaignsStart());
-      const data = await campaignsAPI.getAll();
+      const data = await campaignsAPI.getAll(apiKey as string);
       dispatch(fetchCampaignsSuccess(data));
     } catch (error: any) {
       dispatch(fetchCampaignsFailure(error.message));
@@ -102,11 +103,11 @@ export default function CampaignsPage() {
                     <button onClick={() => router.push(`/campaigns/${campaign.id}/edit`)} className={styles.editBtn}>
                       Edit
                     </button>
-                    {campaign.status === 'draft' || campaign.status === 'paused' ? (
+                    {campaign.status === 'DRAFT' || campaign.status === 'PAUSED' ? (
                       <button onClick={() => handleStart(campaign.id)} className={styles.startBtn}>
                         Start
                       </button>
-                    ) : campaign.status === 'active' ? (
+                    ) : campaign.status === 'RUNNING' ? (
                       <button onClick={() => handlePause(campaign.id)} className={styles.pauseBtn}>
                         Pause
                       </button>
