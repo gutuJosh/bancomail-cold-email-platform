@@ -1,48 +1,53 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { fetchProspectsStart, fetchProspectsSuccess, fetchProspectsFailure } from '@/store/slices/prospectsSlice';
-import api, { prospectsAPI } from '@/services/api';
-import Navbar from '@/components/Navbar/Navbar';
-import styles from './prospects.module.scss';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import {
+  fetchProspectsStart,
+  fetchProspectsSuccess,
+  fetchProspectsFailure,
+} from "@/store/slices/prospectsSlice";
+import { prospectsAPI } from "@/services/api";
+import Navbar from "@/components/Navbar/Navbar";
+import styles from "./prospects.module.scss";
 
 interface FiltersData {
-  apiKey:string,
+  apiKey: string;
   per_page: number;
   page: number;
   sort?: string;
 }
 
-
 export default function ProspectsPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isAuthenticated, apiKey } = useAppSelector((state) => state.auth);
-  const { prospects, loading, error } = useAppSelector((state) => state.prospects);
-  const [filters, setFilters] = useState<FiltersData | null>(null)
+  const { prospects, loading, error } = useAppSelector(
+    (state) => state.prospects
+  );
+  const [filters, setFilters] = useState<FiltersData | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/');
+      router.push("/");
       return;
     }
-    if(apiKey){
-        setFilters({
-          'apiKey':apiKey,
-          'per_page': 100,
-          'page':1,
-        })
+    if (apiKey) {
+      setFilters({
+        apiKey: apiKey,
+        per_page: 100,
+        page: 1,
+      });
     }
   }, [isAuthenticated, apiKey, router]);
 
   useEffect(() => {
-    if(!filters){
+    if (!filters) {
       return;
     }
-     loadProspects();
-  },[filters])
+    loadProspects();
+  }, [filters]);
 
   const loadProspects = async () => {
     try {
@@ -63,7 +68,10 @@ export default function ProspectsPage() {
         <div className="container">
           <div className={styles.header}>
             <h1 className="page-title">Prospects</h1>
-            <button onClick={() => router.push('/prospects/upload')} className={styles.uploadBtn}>
+            <button
+              onClick={() => router.push("/prospects/upload")}
+              className={styles.uploadBtn}
+            >
               📤 Upload Prospects
             </button>
           </div>
@@ -74,8 +82,13 @@ export default function ProspectsPage() {
             <div className="loading">Loading prospects...</div>
           ) : prospects.length === 0 ? (
             <div className={styles.emptyState}>
-              <p>No prospects yet. Upload your first CSV file to get started!</p>
-              <button onClick={() => router.push('/prospects/upload')} className={styles.uploadBtn}>
+              <p>
+                No prospects yet. Upload your first CSV file to get started!
+              </p>
+              <button
+                onClick={() => router.push("/prospects/upload")}
+                className={styles.uploadBtn}
+              >
                 Upload Prospects
               </button>
             </div>
@@ -97,9 +110,13 @@ export default function ProspectsPage() {
                       <td>{prospect.email}</td>
                       <td>{prospect.first_name}</td>
                       <td>{prospect.last_name}</td>
-                      <td>{prospect.company || '-'}</td>
+                      <td>{prospect.company || "-"}</td>
                       <td>
-                        <span className={`${styles.badge} ${styles[prospect.status]}`}>
+                        <span
+                          className={`${styles.badge} ${
+                            styles[prospect.status]
+                          }`}
+                        >
                           {prospect.status}
                         </span>
                       </td>

@@ -1,14 +1,21 @@
-'use client';
+"use client";
 
-import { FormEvent, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { fetchCampaignsStart, fetchCampaignsSuccess } from '@/store/slices/campaignsSlice';
-import { uploadProspectsStart, uploadProspectsSuccess, uploadProspectsFailure } from '@/store/slices/prospectsSlice';
-import { campaignsAPI, prospectsAPI } from '@/services/api';
-import { parseCSV, validateProspects } from '@/utils/csvParser';
-import Navbar from '@/components/Navbar/Navbar';
-import styles from './upload.module.scss';
+import { FormEvent, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import {
+  fetchCampaignsStart,
+  fetchCampaignsSuccess,
+} from "@/store/slices/campaignsSlice";
+import {
+  uploadProspectsStart,
+  uploadProspectsSuccess,
+  uploadProspectsFailure,
+} from "@/store/slices/prospectsSlice";
+import { campaignsAPI, prospectsAPI } from "@/services/api";
+import { parseCSV, validateProspects } from "@/utils/csvParser";
+import Navbar from "@/components/Navbar/Navbar";
+import styles from "./upload.module.scss";
 
 export default function UploadProspectsPage() {
   const router = useRouter();
@@ -22,7 +29,7 @@ export default function UploadProspectsPage() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/');
+      router.push("/");
       return;
     }
     loadCampaigns();
@@ -34,7 +41,7 @@ export default function UploadProspectsPage() {
       const data = await campaignsAPI.getAll(apiKey as string);
       dispatch(fetchCampaignsSuccess(data));
     } catch (error) {
-      console.error('Failed to load campaigns');
+      console.error("Failed to load campaigns");
     }
   };
 
@@ -45,42 +52,44 @@ export default function UploadProspectsPage() {
     }
   };
 
-  const handleUpload = async (event : FormEvent) => {
+  const handleUpload = async (event: FormEvent) => {
     event.preventDefault();
     if (!file || !selectedCampaign) {
-      alert('Please select a campaign and CSV file');
+      alert("Please select a campaign and CSV file");
       return;
     }
 
+    dispatch(uploadProspectsStart());
 
-      dispatch(uploadProspectsStart());
+    const formData = new FormData();
+    formData.append("csvFile", file);
+    formData.append("apiKey", apiKey as string);
+    formData.append("campaignId", selectedCampaign);
 
-      const formData = new FormData();
-      formData.append('csvFile', file);
-      formData.append('apiKey', apiKey as string);
-      formData.append('campaignId', selectedCampaign);
+    try {
+      const response = await fetch("/api/prospects/upload", {
+        method: "POST",
+        // DO NOT set Content-Type header; FormData does this automatically
+        body: formData,
+      });
 
-      try {
-        const response = await fetch('/api/prospects/upload', {
-          method: 'POST',
-          // DO NOT set Content-Type header; FormData does this automatically
-          body: formData,
-        });
+      const result = await response.json();
 
-        const result = await response.json();
-      
-        if (response.ok) {
-          
-          console.log(result.data);
-        } else {
-          console.log(response)
+      if (response.ok) {
+        if (result.status === "OK") {
+          dispatch(uploadProspectsSuccess(result.message));
+          alert(`Successfully uploaded ${result.count} prospects!`);
+          router.push("/prospects");
         }
-    } catch (error:any) {
-       dispatch(uploadProspectsFailure(error?.message));
+      } else {
+        console.log(response);
+      }
+    } catch (error: any) {
+      dispatch(uploadProspectsFailure(error?.message));
     }
 
     return;
-     /*  
+    /*  
       const parsed = await parseCSV(file);
      
       const { valid, errors: validationErrors } = validateProspects(parsed);
@@ -117,7 +126,7 @@ export default function UploadProspectsPage() {
               <label htmlFor="campaign">Select Campaign *</label>
               <select
                 id="campaign"
-                value={selectedCampaign || ''}
+                value={selectedCampaign || ""}
                 onChange={(e) => setSelectedCampaign(Number(e.target.value))}
                 className={styles.select}
               >
@@ -140,7 +149,8 @@ export default function UploadProspectsPage() {
                 className={styles.fileInput}
               />
               <p className={styles.hint}>
-                CSV should have columns: email, first_name, last_name, company (optional)
+                CSV should have columns: email, first_name, last_name, company
+                (optional)
               </p>
             </div>
 
@@ -152,18 +162,26 @@ export default function UploadProspectsPage() {
                     <li key={index}>{error}</li>
                   ))}
                 </ul>
-                {errors.length > 10 && <p>...and {errors.length - 10} more errors</p>}
+                {errors.length > 10 && (
+                  <p>...and {errors.length - 10} more errors</p>
+                )}
               </div>
             )}
 
             {uploadProgress > 0 && uploadProgress < 100 && (
               <div className={styles.progress}>
-                <div className={styles.progressBar} style={{ width: `${uploadProgress}%` }} />
+                <div
+                  className={styles.progressBar}
+                  style={{ width: `${uploadProgress}%` }}
+                />
               </div>
             )}
 
             <div className={styles.actions}>
-              <button onClick={() => router.back()} className={styles.cancelBtn}>
+              <button
+                onClick={() => router.back()}
+                className={styles.cancelBtn}
+              >
                 Cancel
               </button>
               <button onClick={handleUpload} className={styles.uploadBtn}>

@@ -1,13 +1,12 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface EmailAccount {
   id: number;
   email: string;
-  name: string;
+  type: string;
   provider: string;
-  status: 'active' | 'inactive' | 'error';
-  created_at: string;
-  from_email:string;
+  signature: string;
+  from_name: string;
 }
 
 interface EmailAccountsState {
@@ -23,7 +22,7 @@ const initialState: EmailAccountsState = {
 };
 
 const emailAccountsSlice = createSlice({
-  name: 'emailAccounts',
+  name: "emailAccounts",
   initialState,
   reducers: {
     fetchAccountsStart: (state) => {
@@ -42,7 +41,7 @@ const emailAccountsSlice = createSlice({
       state.accounts.push(action.payload);
     },
     deleteAccount: (state, action: PayloadAction<number>) => {
-      state.accounts = state.accounts.filter(a => a.id !== action.payload);
+      state.accounts = state.accounts.filter((a) => a.id !== action.payload);
     },
   },
 });
