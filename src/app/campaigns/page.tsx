@@ -1,23 +1,30 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { fetchCampaignsStart, fetchCampaignsSuccess, fetchCampaignsFailure, deleteCampaign } from '@/store/slices/campaignsSlice';
-import { campaignsAPI } from '@/services/api';
-import Navbar from '@/components/Navbar/Navbar';
-import styles from './campaigns.module.scss';
-
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import {
+  fetchCampaignsStart,
+  fetchCampaignsSuccess,
+  fetchCampaignsFailure,
+  deleteCampaign,
+} from "@/store/slices/campaignsSlice";
+import { UTCtoLocale } from "@/utils/helper";
+import { campaignsAPI } from "@/services/api";
+import Navbar from "@/components/Navbar/Navbar";
+import styles from "./campaigns.module.scss";
 
 export default function CampaignsPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isAuthenticated, apiKey } = useAppSelector((state) => state.auth);
-  const { campaigns, loading, error } = useAppSelector((state) => state.campaigns);
+  const { campaigns, loading, error } = useAppSelector(
+    (state) => state.campaigns
+  );
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/');
+      router.push("/");
       return;
     }
     loadCampaigns();
@@ -27,6 +34,7 @@ export default function CampaignsPage() {
     try {
       dispatch(fetchCampaignsStart());
       const data = await campaignsAPI.getAll(apiKey as string);
+      console.log("CAMPAIGNS---->", data);
       dispatch(fetchCampaignsSuccess(data));
     } catch (error: any) {
       dispatch(fetchCampaignsFailure(error.message));
@@ -34,13 +42,13 @@ export default function CampaignsPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this campaign?')) return;
+    if (!confirm("Are you sure you want to delete this campaign?")) return;
 
     try {
       await campaignsAPI.delete(id);
       dispatch(deleteCampaign(id));
     } catch (error) {
-      alert('Failed to delete campaign');
+      alert("Failed to delete campaign");
     }
   };
 
@@ -49,7 +57,7 @@ export default function CampaignsPage() {
       await campaignsAPI.start(id);
       loadCampaigns();
     } catch (error) {
-      alert('Failed to start campaign');
+      alert("Failed to start campaign");
     }
   };
 
@@ -58,7 +66,7 @@ export default function CampaignsPage() {
       await campaignsAPI.pause(id);
       loadCampaigns();
     } catch (error) {
-      alert('Failed to pause campaign');
+      alert("Failed to pause campaign");
     }
   };
 
@@ -71,7 +79,10 @@ export default function CampaignsPage() {
         <div className="container">
           <div className={styles.header}>
             <h1 className="page-title">Campaigns</h1>
-            <button onClick={() => router.push('/campaigns/new')} className={styles.createBtn}>
+            <button
+              onClick={() => router.push("/campaigns/new")}
+              className={styles.createBtn}
+            >
               ➕ Create Campaign
             </button>
           </div>
@@ -82,8 +93,13 @@ export default function CampaignsPage() {
             <div className="loading">Loading campaigns...</div>
           ) : campaigns.length === 0 ? (
             <div className={styles.emptyState}>
-              <p>No campaigns yet. Create your first campaign to get started!</p>
-              <button onClick={() => router.push('/campaigns/new')} className={styles.createBtn}>
+              <p>
+                No campaigns yet. Create your first campaign to get started!
+              </p>
+              <button
+                onClick={() => router.push("/campaigns/new")}
+                className={styles.createBtn}
+              >
                 Create Campaign
               </button>
             </div>
@@ -93,26 +109,54 @@ export default function CampaignsPage() {
                 <div key={campaign.id} className={styles.campaignCard}>
                   <div className={styles.campaignHeader}>
                     <h3>{campaign.name}</h3>
-                    <span className={`${styles.badge} ${styles[campaign.status]}`}>
+                    <span
+                      className={`${styles.badge} ${styles[campaign.status]}`}
+                    >
                       {campaign.status}
                     </span>
                   </div>
                   <p className={styles.subject}>{campaign.subject}</p>
-                  <p className={styles.prospects}>Prospects: {campaign.total_prospects || 0}</p>
+                  <p className={styles.prospects}>
+                    Created at:{" "}
+                    {UTCtoLocale(
+                      campaign.created.split("+")[0].replace("T", " ")
+                    )}
+                    <br />
+                    From email: {campaign.from_email}
+                    <br />
+                    CC Recipients: {campaign.cc}
+                    <br />
+                    Bcc Recipients: {campaign.bcc}
+                  </p>
                   <div className={styles.actions}>
-                    <button onClick={() => router.push(`/campaigns/${campaign.id}/edit`)} className={styles.editBtn}>
+                    <button
+                      onClick={() =>
+                        router.push(`/campaigns/${campaign.id}/edit`)
+                      }
+                      className={styles.editBtn}
+                    >
                       Edit
                     </button>
-                    {campaign.status === 'DRAFT' || campaign.status === 'PAUSED' ? (
-                      <button onClick={() => handleStart(campaign.id)} className={styles.startBtn}>
+                    {campaign.status === "DRAFT" ||
+                    campaign.status === "PAUSED" ? (
+                      <button
+                        onClick={() => handleStart(campaign.id)}
+                        className={styles.startBtn}
+                      >
                         Start
                       </button>
-                    ) : campaign.status === 'RUNNING' ? (
-                      <button onClick={() => handlePause(campaign.id)} className={styles.pauseBtn}>
+                    ) : campaign.status === "RUNNING" ? (
+                      <button
+                        onClick={() => handlePause(campaign.id)}
+                        className={styles.pauseBtn}
+                      >
                         Pause
                       </button>
                     ) : null}
-                    <button onClick={() => handleDelete(campaign.id)} className={styles.deleteBtn}>
+                    <button
+                      onClick={() => handleDelete(campaign.id)}
+                      className={styles.deleteBtn}
+                    >
                       Delete
                     </button>
                   </div>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { parse } from "csv-parse/sync"; // Use the synchronous version
+import { getDateAndTime } from "@/utils/helper";
 
 // Define the expected CSV record type
 interface CsvRecord {
@@ -57,10 +58,13 @@ export async function POST(req: Request) {
       },
     }) as CsvRecord[];
 
+    const time = getDateAndTime(new Date(), false);
+
     const body = {
       campaign: {
         campaign_id: campaignId,
       },
+      file_name: `API import ${time}`,
       prospects: records,
     };
 
@@ -68,7 +72,7 @@ export async function POST(req: Request) {
 
     //return NextResponse.json(body, { status: 200 });
 
-    // 5. Make the secure server-to-server request to Woodpecker
+    //Make the secure server-to-server post request to Woodpecker
     const wpResponse = await fetch(
       `${process.env.API_SRV_ROOT}/v1/add_prospects_campaign`,
       {
@@ -78,7 +82,7 @@ export async function POST(req: Request) {
           // Use the API key received from the client for authorization
           "x-api-key": `${apiKey}`,
         },
-        // If the endpoint requires a body (e.g., for OAuth token exchange), add it here:
+        // add body here:
         body: JSON.stringify(body),
       }
     );

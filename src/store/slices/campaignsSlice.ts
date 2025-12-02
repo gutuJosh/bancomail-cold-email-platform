@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 type UnknownKeyedObject = {
   [key: string | number]: unknown;
@@ -9,11 +9,12 @@ export interface Campaign {
   name: string;
   subject: string;
   content: string;
-  status: 'DRAFT' | 'STOPPED' | 'PAUSED' | 'COMPLETED' | 'RUNNING' | 'EDITED';
-  created_at: string;
-  updated_at: string;
-  total_prospects: number;
-  stats?:UnknownKeyedObject
+  status: "DRAFT" | "STOPPED" | "PAUSED" | "COMPLETED" | "RUNNING" | "EDITED";
+  created: string;
+  from_email: string;
+  cc: string;
+  bcc: string;
+  stats?: UnknownKeyedObject;
 }
 
 interface CampaignsState {
@@ -31,7 +32,7 @@ const initialState: CampaignsState = {
 };
 
 const campaignsSlice = createSlice({
-  name: 'campaigns',
+  name: "campaigns",
   initialState,
   reducers: {
     fetchCampaignsStart: (state) => {
@@ -53,13 +54,15 @@ const campaignsSlice = createSlice({
       state.campaigns.push(action.payload);
     },
     updateCampaign: (state, action: PayloadAction<Campaign>) => {
-      const index = state.campaigns.findIndex(c => c.id === action.payload.id);
+      const index = state.campaigns.findIndex(
+        (c) => c.id === action.payload.id
+      );
       if (index !== -1) {
         state.campaigns[index] = action.payload;
       }
     },
     deleteCampaign: (state, action: PayloadAction<number>) => {
-      state.campaigns = state.campaigns.filter(c => c.id !== action.payload);
+      state.campaigns = state.campaigns.filter((c) => c.id !== action.payload);
     },
   },
 });

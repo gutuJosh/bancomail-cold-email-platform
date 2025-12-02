@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import { AccountFormData } from "@/types/global";
 const api = axios.create({
   baseURL: "/api",
   headers: {
@@ -31,12 +31,7 @@ export const emailAccountsAPI = {
     const response = await api.get(`/email-accounts?apiKey=${apiKey}`);
     return response.data;
   },
-  create: async (data: {
-    email: string;
-    name: string;
-    provider: string;
-    apiKey: string;
-  }) => {
+  create: async (data: AccountFormData) => {
     const response = await api.post("/email-accounts", data);
     return response.data;
   },
@@ -51,8 +46,8 @@ export const campaignsAPI = {
     const response = await api.get(`/campaigns?apiKey=${apiKey}`);
     return response.data;
   },
-  getById: async (id: number) => {
-    const response = await api.get(`/campaigns/${id}`);
+  getById: async (id: number, apiKey: string) => {
+    const response = await api.get(`/campaigns/${id}?apiKey=${apiKey}`);
     return response.data;
   },
   create: async (data: {
