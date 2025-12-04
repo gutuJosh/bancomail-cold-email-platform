@@ -63,9 +63,19 @@ export const campaignsAPI = {
   },
   update: async (
     id: number,
-    data: { name: string; subject: string; content: string; status?: string }
+    data: {
+      name: string;
+      subject: string;
+      message: string;
+      signature: boolean;
+      track_opens: boolean;
+      step: string;
+      step_id: string;
+      version_id: string;
+      apiKey: string;
+    }
   ) => {
-    const response = await api.put(`/campaigns/${id}`, data);
+    const response = await api.patch(`/campaigns/${id}`, data);
     return response.data;
   },
   delete: async (id: number) => {

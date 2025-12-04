@@ -34,7 +34,7 @@ export default function CampaignsPage() {
     try {
       dispatch(fetchCampaignsStart());
       const data = await campaignsAPI.getAll(apiKey as string);
-      console.log("CAMPAIGNS---->", data);
+      //console.log("CAMPAIGNS---->", data);
       dispatch(fetchCampaignsSuccess(data));
     } catch (error: any) {
       dispatch(fetchCampaignsFailure(error.message));

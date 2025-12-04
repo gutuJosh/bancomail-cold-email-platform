@@ -53,8 +53,6 @@ export function formatDate(d: string): string {
 export function UTCtoLocale(date: string): string {
   const dt = new Date(`${date} UTC`.replace(" ", "T").replace(" UTC", "Z"));
 
-  console.log("DT--->", `${date} UTC`.replace(" ", "T").replace(" UTC", "Z"));
-
   try {
     const DateGMT = dt.toISOString();
 

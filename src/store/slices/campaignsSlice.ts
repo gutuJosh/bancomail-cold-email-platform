@@ -1,8 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
-type UnknownKeyedObject = {
-  [key: string | number]: unknown;
-};
+import { UnknownKeyedObject } from "@/types/global";
 
 export interface Campaign {
   id: number;

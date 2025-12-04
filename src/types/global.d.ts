@@ -10,3 +10,11 @@ export interface AccountFormData {
   imap_port: number;
   [key: string]: string | number;
 }
+
+export type UnknownKeyedObject = {
+  [key: string | number]: unknown;
+};
+
+export type StringKeyedObject = {
+  [key: string]: string;
+};
