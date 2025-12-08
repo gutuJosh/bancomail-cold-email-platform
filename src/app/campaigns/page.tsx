@@ -9,9 +9,9 @@ import {
   fetchCampaignsFailure,
   deleteCampaign,
 } from "@/store/slices/campaignsSlice";
-import { UTCtoLocale } from "@/utils/helper";
 import { campaignsAPI } from "@/services/api";
 import Navbar from "@/components/Navbar/Navbar";
+import CampaignBox from "@/components/campaigns/campaign-box";
 import styles from "./campaigns.module.scss";
 
 export default function CampaignsPage() {
@@ -45,8 +45,12 @@ export default function CampaignsPage() {
     if (!confirm("Are you sure you want to delete this campaign?")) return;
 
     try {
-      await campaignsAPI.delete(id);
-      dispatch(deleteCampaign(id));
+      const request = await campaignsAPI.delete(id, apiKey as string);
+      const { status } = request;
+      if (status === "OK") {
+        dispatch(deleteCampaign(id));
+      }
+      return status;
     } catch (error) {
       alert("Failed to delete campaign");
     }
@@ -54,8 +58,9 @@ export default function CampaignsPage() {
 
   const handleStart = async (id: number) => {
     try {
-      await campaignsAPI.start(id);
-      loadCampaigns();
+      const request = await campaignsAPI.start(id, apiKey as string);
+      return request.status;
+      //loadCampaigns();
     } catch (error) {
       alert("Failed to start campaign");
     }
@@ -63,8 +68,9 @@ export default function CampaignsPage() {
 
   const handlePause = async (id: number) => {
     try {
-      await campaignsAPI.pause(id);
-      loadCampaigns();
+      const request = await campaignsAPI.pause(id, apiKey as string);
+      return request.status;
+      //loadCampaigns();
     } catch (error) {
       alert("Failed to pause campaign");
     }
@@ -106,61 +112,15 @@ export default function CampaignsPage() {
           ) : (
             <div className={styles.campaignsList}>
               {campaigns.map((campaign) => (
-                <div key={campaign.id} className={styles.campaignCard}>
-                  <div className={styles.campaignHeader}>
-                    <h3>{campaign.name}</h3>
-                    <span
-                      className={`${styles.badge} ${styles[campaign.status]}`}
-                    >
-                      {campaign.status}
-                    </span>
-                  </div>
-                  <p className={styles.subject}>{campaign.subject}</p>
-                  <p className={styles.prospects}>
-                    Created at:{" "}
-                    {UTCtoLocale(
-                      campaign.created.split("+")[0].replace("T", " ")
-                    )}
-                    <br />
-                    From email: {campaign.from_email}
-                    <br />
-                    CC Recipients: {campaign.cc}
-                    <br />
-                    Bcc Recipients: {campaign.bcc}
-                  </p>
-                  <div className={styles.actions}>
-                    <button
-                      onClick={() =>
-                        router.push(`/campaigns/${campaign.id}/edit`)
-                      }
-                      className={styles.editBtn}
-                    >
-                      Edit
-                    </button>
-                    {campaign.status === "DRAFT" ||
-                    campaign.status === "PAUSED" ? (
-                      <button
-                        onClick={() => handleStart(campaign.id)}
-                        className={styles.startBtn}
-                      >
-                        Start
-                      </button>
-                    ) : campaign.status === "RUNNING" ? (
-                      <button
-                        onClick={() => handlePause(campaign.id)}
-                        className={styles.pauseBtn}
-                      >
-                        Pause
-                      </button>
-                    ) : null}
-                    <button
-                      onClick={() => handleDelete(campaign.id)}
-                      className={styles.deleteBtn}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
+                <CampaignBox
+                  styles={styles}
+                  key={campaign.id}
+                  campaign={campaign}
+                  handleEdit={(id) => router.push(`/campaigns/${id}/edit`)}
+                  handleDelete={(id) => handleDelete(id)}
+                  handlePause={(id) => handlePause(id)}
+                  handleStart={(id) => handleStart(id)}
+                />
               ))}
             </div>
           )}

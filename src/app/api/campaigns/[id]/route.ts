@@ -102,13 +102,20 @@ export async function PATCH(
   try {
     const data = await request.json();
     const {
-      step_id,
-      version_id,
-      apiKey,
-      subject,
-      message,
-      track_opens,
-      signature,
+      step_id = null,
+      version_id = null,
+      apiKey = null,
+      name = null,
+      subject = null,
+      message = null,
+      track_opens = null,
+      signature = null,
+      timezone = null,
+      daily_enroll = 500,
+      email_account_ids = null,
+      gdpr_unsubscribe = true,
+      list_unsubscribe = true,
+      path = null,
     } = data;
 
     if (!apiKey) {
@@ -119,14 +126,32 @@ export async function PATCH(
 
     const urls: StringKeyedObject = {
       update_step_version: `/v2/campaigns/${id}/steps/${step_id}/versions/${version_id}`,
+      update_campaign_settings: `/v2/campaigns/${id}`,
     };
 
-    const body = {
-      subject: subject,
-      message: message,
-      signature: signature ? "SENDER" : "NO_SIGNATURE",
-      track_opens: track_opens,
-    };
+    let body = {};
+    if (path === "update_step_version") {
+      body = {
+        subject: subject,
+        message: message,
+        signature: signature ? "SENDER" : "NO_SIGNATURE",
+        track_opens: track_opens,
+      };
+    }
+    if (path === "update_campaign_settings") {
+      body = {
+        name: name,
+        email_account_ids: email_account_ids,
+        settings: {
+          timezone: timezone,
+          daily_enroll: daily_enroll,
+          gdpr_unsubscribe: gdpr_unsubscribe,
+          list_unsubscribe: list_unsubscribe,
+          auto_pause_prospect_from_domain: true,
+          catch_all_verification_mode: "MAXIMUM",
+        },
+      };
+    }
 
     //Make campaign editable
     const isCampaignEditable = await fetch(
@@ -151,19 +176,16 @@ export async function PATCH(
     }
 
     //Make the secure server-to-server post request to Woodpecker
-    const wpResponse = await fetch(
-      `${process.env.API_SRV_ROOT}${urls[data.step]}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          // Use the API key received from the client for authorization
-          "x-api-key": `${apiKey}`,
-        },
-        // add body here:
-        body: JSON.stringify(body),
-      }
-    );
+    const wpResponse = await fetch(`${process.env.API_SRV_ROOT}${urls[path]}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        // Use the API key received from the client for authorization
+        "x-api-key": `${apiKey}`,
+      },
+      // add body here:
+      body: JSON.stringify(body),
+    });
 
     if (!wpResponse.ok) {
       const errorData = await wpResponse.json();
@@ -192,13 +214,42 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { apiKey } = (await request.json()) as { apiKey: string };
+    const { searchParams } = new URL(request.url);
+    const apiKey = searchParams.get("apiKey");
 
     if (!apiKey) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    return NextResponse.json({ success: true });
+    const { id } = await params;
+
+    //Make the secure server-to-server post request to Woodpecker
+    const wpResponse = await fetch(`${WOODPECKER_API_URL}/v2/campaigns/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        // Use the API key received from the client for authorization
+        "x-api-key": `${apiKey}`,
+      },
+    });
+
+    // Handle Woodpecker's response status
+    if (!wpResponse.ok) {
+      const errorData = await wpResponse.json();
+
+      // Forward the error status/message from Woodpecker to the client
+      return NextResponse.json(errorData, { status: wpResponse.status });
+    }
+
+    return NextResponse.json(
+      {
+        id: parseInt(id),
+        status: "OK",
+        statusCode: wpResponse.status,
+        message: "Campaign deleted successfully",
+      },
+      { status: wpResponse.status }
+    );
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to delete campaign" },

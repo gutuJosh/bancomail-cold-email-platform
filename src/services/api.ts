@@ -1,5 +1,6 @@
 import axios from "axios";
-import { AccountFormData } from "@/types/global";
+import { AccountFormData, CampaignSettingsProperties } from "@/types/global";
+
 const api = axios.create({
   baseURL: "/api",
   headers: {
@@ -63,31 +64,31 @@ export const campaignsAPI = {
   },
   update: async (
     id: number,
-    data: {
-      name: string;
-      subject: string;
-      message: string;
-      signature: boolean;
-      track_opens: boolean;
-      step: string;
-      step_id: string;
-      version_id: string;
-      apiKey: string;
-    }
+    data:
+      | {
+          subject: string;
+          message: string;
+          signature: boolean;
+          track_opens: boolean;
+          step_id: string;
+          version_id: string;
+          apiKey: string;
+        }
+      | CampaignSettingsProperties
   ) => {
     const response = await api.patch(`/campaigns/${id}`, data);
     return response.data;
   },
-  delete: async (id: number) => {
-    const response = await api.delete(`/campaigns/${id}`);
+  delete: async (id: number, apiKey: string) => {
+    const response = await api.delete(`/campaigns/${id}?apiKey=${apiKey}`);
     return response.data;
   },
-  start: async (id: number) => {
-    const response = await api.post(`/campaigns/${id}/start`);
+  start: async (id: number, apiKey: string) => {
+    const response = await api.post(`/campaigns/${id}/start?apiKey=${apiKey}`);
     return response.data;
   },
-  pause: async (id: number) => {
-    const response = await api.post(`/campaigns/${id}/pause`);
+  pause: async (id: number, apiKey: string) => {
+    const response = await api.post(`/campaigns/${id}/pause?apiKey=${apiKey}`);
     return response.data;
   },
 };

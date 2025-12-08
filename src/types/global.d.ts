@@ -18,3 +18,15 @@ export type UnknownKeyedObject = {
 export type StringKeyedObject = {
   [key: string]: string;
 };
+
+export interface CampaignSettingsProperties {
+  apiKey: string;
+  path: string;
+  name: string;
+  email_account_ids: number[];
+  campaign_id: number;
+  timezone: string;
+  daily_enroll: number;
+  gdpr_unsubscribe?: boolean;
+  list_unsubscribe?: boolean;
+}
