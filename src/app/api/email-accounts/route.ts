@@ -73,25 +73,41 @@ export async function GET(request: Request) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { apiKey } = (await request.json()) as { apiKey: string };
+    const newAccount = (await request.json()) as AccountFormData;
+
+    const { apiKey } = newAccount;
 
     if (!apiKey) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const newAccount = (await request.json()) as AccountFormData;
+    let body: { [key: string]: string | number } = {};
+
+    for (const key in newAccount) {
+      const value = newAccount[key] as string;
+      if (key === "apiKey" || value.length === 0) {
+        continue;
+      }
+
+      body[key] = !isNaN(newAccount[key] as number)
+        ? Number(newAccount[key])
+        : newAccount[key];
+    }
+
+    //console.log("BODY--->", JSON.stringify({ mailboxes: [body] }));
+
     //Make the secure server-to-server post request to Woodpecker
     const wpResponse = await fetch(
       `${WOODPECKER_API_URL}/v2/mailboxes/manual_connection/bulk`,
       {
-        method: "GET",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           // Use the API key received from the client for authorization
           "x-api-key": `${apiKey}`,
         },
         //add body here:
-        body: JSON.stringify(newAccount),
+        body: JSON.stringify({ mailboxes: [body] }),
       }
     );
 
@@ -102,11 +118,33 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(errorData, { status: wpResponse.status });
     }
 
-    //Success: Forward the data to the client
-    const data = await wpResponse.json();
-    data["statusCode"] = wpResponse.status;
-    data["status"] = "OK";
     //The response includes a batch_id that allows to monitor the progress and results of the submitted mailbox connections
+    const data = await wpResponse.json();
+    const { batch_id } = data;
+
+    const wpChekEmailBoxStatus = await fetch(
+      `${WOODPECKER_API_URL}/v2/mailboxes/manual_connection/bulk/${batch_id}/summary`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          // Use the API key received from the client for authorization
+          "x-api-key": `${apiKey}`,
+        },
+      }
+    );
+
+    //Handle Woodpecker's response status
+    if (!wpChekEmailBoxStatus.ok) {
+      const errorData = await wpResponse.json();
+      // Forward the error status/message from Woodpecker to the client
+      return NextResponse.json(errorData, { status: wpResponse.status });
+    }
+    const email_box = await wpChekEmailBoxStatus.json();
+    email_box["statusCode"] = wpResponse.status;
+    email_box["status"] = email_box.failed_mailboxes_count === 0 ? "OK" : "KO";
+    email_box["body"] = body;
+
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
     return NextResponse.json(

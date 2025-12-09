@@ -8,6 +8,7 @@ export interface AccountFormData {
   imap_password: string;
   imap_server: string;
   imap_port: number;
+  sending_wait_time_to: number;
   [key: string]: string | number;
 }
 

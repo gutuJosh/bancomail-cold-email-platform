@@ -135,8 +135,8 @@ export const prospectsAPI = {
 };
 
 export const statsAPI = {
-  getCampaignStats: async (campaignId?: number) => {
-    const url = campaignId ? `/stats?campaignId=${campaignId}` : "/stats";
+  getCampaignStats: async (campaignId: number | null, apiKey: string) => {
+    const url = `/stats?campaignId=${campaignId}&apiKey=${apiKey}`;
     const response = await api.get(url);
     return response.data;
   },

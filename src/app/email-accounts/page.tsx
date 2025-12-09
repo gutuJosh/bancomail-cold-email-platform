@@ -66,9 +66,15 @@ export default function EmailAccountsPage() {
   const onSubmit = async (data: AccountFormData) => {
     try {
       const newAccount = await emailAccountsAPI.create(data);
-      dispatch(addAccount(newAccount));
-      reset();
-      setShowForm(false);
+      if (newAccount.status === "OK") {
+        dispatch(addAccount(newAccount.body));
+        reset();
+        setShowForm(false);
+      } else {
+        alert(
+          `Failed to add email account! ${newAccount?.failed_mailboxes[0]?.error_message}`
+        );
+      }
     } catch (error) {
       alert("Failed to add email account");
     }
@@ -105,6 +111,12 @@ export default function EmailAccountsPage() {
           {showForm && (
             <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
               <h3>SMTP</h3>
+              <input
+                type="hidden"
+                value={apiKey as string}
+                id="apiKey"
+                {...register("apiKey")}
+              />
 
               <div className={styles.formGroup}>
                 <label htmlFor="email">Email *</label>
@@ -145,7 +157,7 @@ export default function EmailAccountsPage() {
                 <input
                   id="smtp_server"
                   type="text"
-                  {...register("smtp_port", {
+                  {...register("smtp_server", {
                     required: "SMTP Server is required",
                   })}
                   className={styles.input}
@@ -215,7 +227,7 @@ export default function EmailAccountsPage() {
                 <input
                   id="imap_server"
                   type="text"
-                  {...register("imap_port", {
+                  {...register("imap_server", {
                     required: "IMAP Server is required",
                   })}
                   className={styles.input}
@@ -240,6 +252,56 @@ export default function EmailAccountsPage() {
                 {errors.name && (
                   <span className={styles.error}>
                     {errors.imap_port?.message}
+                  </span>
+                )}
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="sending_wait_time_from">
+                  Sending wait time from*
+                </label>
+                <input
+                  id="sending_wait_time_from"
+                  type="number"
+                  required={true}
+                  {...register("sending_wait_time_from")}
+                  className={styles.input}
+                  max={9999}
+                  min={10}
+                />
+                <p>
+                  <small>
+                    Minimum pause between emails in seconds (range: 10-9999)
+                  </small>
+                </p>
+                {errors.sending_wait_time_to && (
+                  <span className={styles.error}>
+                    {errors.sending_wait_time_to?.message}
+                  </span>
+                )}
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="sending_wait_time_to">
+                  Sending wait time to *
+                </label>
+                <input
+                  id="sending_wait_time_to"
+                  type="number"
+                  required={true}
+                  {...register("sending_wait_time_to")}
+                  className={styles.input}
+                  max={9999}
+                  min={20}
+                />
+                <p>
+                  <small>
+                    Maximum pause between emails in seconds (range: 20-9999)
+                  </small>
+                </p>
+                {errors.sending_wait_time_to && (
+                  <span className={styles.error}>
+                    {errors.sending_wait_time_to?.message}
                   </span>
                 )}
               </div>
@@ -270,15 +332,22 @@ export default function EmailAccountsPage() {
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="name">Daily Sending Limit</label>
+                <label htmlFor="daily_sending_limit">Daily Sending Limit</label>
                 <input
                   id="daily_sending_limit"
                   type="number"
                   placeholder="Default 500"
                   {...register("daily_sending_limit")}
                   className={styles.input}
+                  max={5500}
                 />
-                {errors.name && (
+                <p>
+                  <small>
+                    Maximum number of sent emails allowed per day (range:
+                    1-5500)
+                  </small>
+                </p>
+                {errors.daily_sending_limit && (
                   <span className={styles.error}>
                     {errors.daily_sending_limit?.message}
                   </span>

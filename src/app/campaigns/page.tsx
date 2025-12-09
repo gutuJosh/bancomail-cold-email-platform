@@ -120,6 +120,7 @@ export default function CampaignsPage() {
                   handleDelete={(id) => handleDelete(id)}
                   handlePause={(id) => handlePause(id)}
                   handleStart={(id) => handleStart(id)}
+                  viewStats={(id) => router.push(`/stats?campaign_id=${id}`)}
                 />
               ))}
             </div>

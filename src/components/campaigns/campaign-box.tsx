@@ -18,6 +18,7 @@ interface Properties {
   handlePause: (id: number) => Promise<string>;
   handleDelete: (id: number) => Promise<string>;
   handleEdit: (id: number) => void;
+  viewStats: (id: number) => void;
 }
 
 const CampaignBox: FC<Properties> = ({
@@ -27,6 +28,7 @@ const CampaignBox: FC<Properties> = ({
   handlePause,
   handleDelete,
   handleEdit,
+  viewStats,
 }) => {
   const [status, setStatus] = useState<string>(campaign?.status);
   const [isDeleted, setIsDeleted] = useState<boolean>(false);
@@ -106,6 +108,15 @@ const CampaignBox: FC<Properties> = ({
             >
               Delete
             </button>
+
+            {status === "COMPLETED" && (
+              <button
+                onClick={() => viewStats(campaign.id)}
+                className={styles.pauseBtn}
+              >
+                View Stats
+              </button>
+            )}
           </div>
         </div>
       )}

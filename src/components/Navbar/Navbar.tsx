@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { logout } from '@/store/slices/authSlice';
-import { authAPI } from '@/services/api';
-import styles from './Navbar.module.scss';
+import Link from "next/link";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { logout } from "@/store/slices/authSlice";
+import { authAPI } from "@/services/api";
+import styles from "./Navbar.module.scss";
 
 export default function Navbar() {
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
@@ -15,7 +15,7 @@ export default function Navbar() {
       await authAPI.logout();
       dispatch(logout());
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     }
   };
 
@@ -44,6 +44,9 @@ export default function Navbar() {
           </li>
           <li>
             <Link href="/stats">Statistics</Link>
+          </li>
+          <li>
+            <Link href="/inbox">Inbox</Link>
           </li>
         </ul>
         <div className={styles.user}>

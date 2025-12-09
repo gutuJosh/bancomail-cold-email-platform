@@ -1,14 +1,17 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface CampaignStats {
-  campaign_id: number;
-  total_sent: number;
-  total_opened: number;
-  total_replied: number;
-  total_bounced: number;
-  open_rate: number;
-  reply_rate: number;
-  bounce_rate: number;
+  id: number;
+  invalid: number;
+  sent: number;
+  replied: number;
+  interested: number;
+  not_interested: number;
+  maybe_later: number;
+  opened: number;
+  delivery: number;
+  bounced: number;
+  optout: number;
 }
 
 interface StatsState {
@@ -24,7 +27,7 @@ const initialState: StatsState = {
 };
 
 const statsSlice = createSlice({
-  name: 'stats',
+  name: "stats",
   initialState,
   reducers: {
     fetchStatsStart: (state) => {
@@ -42,5 +45,6 @@ const statsSlice = createSlice({
   },
 });
 
-export const { fetchStatsStart, fetchStatsSuccess, fetchStatsFailure } = statsSlice.actions;
+export const { fetchStatsStart, fetchStatsSuccess, fetchStatsFailure } =
+  statsSlice.actions;
 export default statsSlice.reducer;
