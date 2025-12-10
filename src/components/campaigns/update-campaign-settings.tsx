@@ -113,7 +113,7 @@ const UpdateCampaignSettings: FC<ComponentProperties> = ({
       </div>
 
       <div className={styles.formGroup}>
-        <label htmlFor="email_account_ids">Timezone *</label>
+        <label htmlFor="timezone">Timezone *</label>
         <select
           id="timezone"
           {...register("timezone", {

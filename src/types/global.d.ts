@@ -20,9 +20,22 @@ export type StringKeyedObject = {
   [key: string]: string;
 };
 
+export interface CampaignFormData {
+  name: string;
+  subject: string;
+  content: string;
+  email_account_ids: [];
+  settings: UnknownKeyedObject;
+  steps: UnknownKeyedObject;
+  timezone: string;
+  daily_enroll: string;
+  gdpr_unsubscribe: string;
+  list_unsubscribe: string;
+}
+
 export interface CampaignSettingsProperties {
-  apiKey: string;
-  path: string;
+  apiKey?: string;
+  path?: string;
   name: string;
   email_account_ids: number[];
   campaign_id: number;

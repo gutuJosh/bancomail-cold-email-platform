@@ -27,7 +27,7 @@ export default function Navbar() {
     <nav className={styles.navbar}>
       <div className={styles.container}>
         <Link href="/dashboard" className={styles.logo}>
-          Woodpecker Client
+          Bancomail
         </Link>
         <ul className={styles.menu}>
           <li>

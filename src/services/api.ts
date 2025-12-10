@@ -1,5 +1,9 @@
 import axios from "axios";
-import { AccountFormData, CampaignSettingsProperties } from "@/types/global";
+import {
+  AccountFormData,
+  CampaignFormData,
+  CampaignSettingsProperties,
+} from "@/types/global";
 
 const api = axios.create({
   baseURL: "/api",
@@ -51,14 +55,7 @@ export const campaignsAPI = {
     const response = await api.get(`/campaigns/${id}?apiKey=${apiKey}`);
     return response.data;
   },
-  create: async (data: {
-    name: string;
-    subject: string;
-    content: string;
-    email_account_ids: [];
-    settings: UnknownKeyedObject;
-    steps: UnknownKeyedObject;
-  }) => {
+  create: async (data: CampaignFormData) => {
     const response = await api.post("/campaigns", data);
     return response.data;
   },

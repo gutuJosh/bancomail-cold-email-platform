@@ -196,7 +196,7 @@ export default function Dashboard() {
                         </span>
                         {campaign.status === "COMPLETED" && (
                           <span
-                            className={`${styles.badge} ${
+                            className={`underline ${styles.badge} ${
                               styles[campaign.status]
                             }`}
                             onClick={() =>

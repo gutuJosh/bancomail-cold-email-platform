@@ -15,17 +15,11 @@ import {
   emailAccountsAPI,
   UnknownKeyedObject,
 } from "@/services/api";
+import DeliveryTime from "@/components/campaigns/delivery-time";
 import Navbar from "@/components/Navbar/Navbar";
 import styles from "./new.module.scss";
-
-interface CampaignFormData {
-  name: string;
-  subject: string;
-  content: string;
-  email_account_ids: [];
-  settings: UnknownKeyedObject;
-  steps: UnknownKeyedObject;
-}
+import timezoneOptions from "@/config/timezones.json";
+import { CampaignFormData } from "@/types/global";
 
 export default function NewCampaignPage() {
   const router = useRouter();
@@ -148,6 +142,76 @@ export default function NewCampaignPage() {
               {errors.content && (
                 <span className={styles.error}>{errors.content.message}</span>
               )}
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="timezone">Timezone *</label>
+              <select
+                id="timezone"
+                {...register("timezone", {
+                  required: "Timezone is required",
+                })}
+                className={styles.input}
+              >
+                {timezoneOptions.map((item, index) => (
+                  <option key={index} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <DeliveryTime day="monday" />
+
+            <div className={styles.formGroup}>
+              <label htmlFor="daily_enroll">Prospects number</label>
+              <input
+                id="daily_enroll"
+                type="number"
+                maxLength={3}
+                max={500}
+                {...register("daily_enroll", {
+                  required: "Daily enroll number is required",
+                })}
+                className={styles.input}
+              />
+              {errors.daily_enroll && (
+                <span className={styles.error}>
+                  {errors.daily_enroll.message}
+                </span>
+              )}
+              <small>
+                Maximum number of prospects that can be contacted in the opening
+                step of the campaign per day
+              </small>
+            </div>
+
+            <div className={styles.formGroup}>
+              <p className="flex flex-align-center">
+                <input
+                  type="checkbox"
+                  id="gdpr_unsubscribe"
+                  {...register("gdpr_unsubscribe", {
+                    required: "Gdpr unsubscribe is required",
+                  })}
+                />
+                <label htmlFor="gdpr_unsubscribe">Gdpr Signature</label>
+              </p>
+              <small>{`Whether the unsubscribe link should provide prospects with an option for GDPR-compliant data removal. This option will work only if the '{{UNSUBSCRIBE}} snippet is included in your email or account signature`}</small>
+            </div>
+
+            <div className={styles.formGroup}>
+              <p className="flex flex-align-center">
+                <input
+                  type="checkbox"
+                  id="list_unsubscribe"
+                  {...register("list_unsubscribe", {
+                    required: "List unsubscribe is required",
+                  })}
+                />
+                <label htmlFor="track_opens">List unsubscribe</label>
+              </p>
+              <small>{`Whether to include List-Unsubscribe header. This option will work only if the {{UNSUBSCRIBE}} snippet is included in your email or account signature`}</small>
             </div>
 
             <div className={styles.actions}>
