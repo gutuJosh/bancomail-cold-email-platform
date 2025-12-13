@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
@@ -20,6 +20,8 @@ import Navbar from "@/components/Navbar/Navbar";
 import styles from "./new.module.scss";
 import timezoneOptions from "@/config/timezones.json";
 import { CampaignFormData } from "@/types/global";
+import { DelieveryTimeProps } from "@/types/global";
+import week from "../../../config/days-of-the-week.json";
 
 export default function NewCampaignPage() {
   const router = useRouter();
@@ -34,6 +36,8 @@ export default function NewCampaignPage() {
     formState: { errors },
   } = useForm<CampaignFormData>();
 
+  const [deliveryTime, setDeliveryTime] = useState<DelieveryTimeProps[]>([]);
+
   useEffect(() => {
     if (!isAuthenticated) {
       router.push("/");
@@ -45,8 +49,28 @@ export default function NewCampaignPage() {
 
   const onSubmit = async (data: CampaignFormData) => {
     try {
+      let delivery_time: { [key: string]: { from: string; to: string }[] } = {};
+      if (deliveryTime.length > 0) {
+        deliveryTime.forEach((item) => {
+          delivery_time[item.dayName] = item.hours;
+        });
+      }
+      data["apiKey"] = apiKey as string;
+      data["settings"] = delivery_time;
+
       const newCampaign = await campaignsAPI.create(data);
-      dispatch(addCampaign(newCampaign));
+
+      if (newCampaign.status === "OK") {
+        if (
+          confirm(
+            "The campaign was saved successfully as draft! Do you wish to continue edit the campaign?"
+          )
+        ) {
+          router.push(`/campaigns/${newCampaign.id}/edit`);
+          return;
+        }
+        dispatch(addCampaign(newCampaign));
+      }
       router.push("/campaigns");
     } catch (error) {
       alert("Failed to create campaign");
@@ -56,11 +80,53 @@ export default function NewCampaignPage() {
   const loadsEmailAccounts = async () => {
     try {
       dispatch(fetchAccountsStart());
-      const data = await campaignsAPI.getAll(apiKey as string);
-      dispatch(fetchAccountsSuccess(data));
+      const data = await emailAccountsAPI.getAll(apiKey as string);
+
+      dispatch(
+        fetchAccountsSuccess(
+          data.filter(
+            (email: {
+              type: string;
+              id: number;
+              details: { [key: string]: string | number };
+            }) => email.type === "SMTP"
+          )
+        )
+      );
     } catch (error: any) {
       dispatch(fetchAccountsFailure(error.message));
     }
+  };
+
+  const handleDeliveryTime = (obj: DelieveryTimeProps) => {
+    const { dayName } = obj;
+    const delivery_time = [...deliveryTime];
+    const item_exists = delivery_time.filter(
+      (item) => item.dayName === dayName
+    );
+    if (item_exists.length > 0) {
+      for (let i = 0; i < delivery_time.length; i++) {
+        if (delivery_time[i].dayName === item_exists[0].dayName) {
+          const { hours } = obj;
+          delivery_time[i].hours = hours.filter(
+            (item) => item.from.length > 0 && item.to.length > 0
+          );
+          break;
+        }
+      }
+    } else {
+      const hours = obj.hours.filter(
+        (item) => item.from.length > 0 && item.to.length > 0
+      );
+      if (hours.length > 0) {
+        delivery_time.push({
+          dayName: dayName,
+          hours: hours,
+        });
+      }
+    }
+
+    setDeliveryTime(delivery_time);
   };
 
   if (!isAuthenticated) return null;
@@ -103,7 +169,8 @@ export default function NewCampaignPage() {
               >
                 {accounts?.map((item) => (
                   <option key={item.id} value={item.id}>
-                    {item.from_name}
+                    {item?.details?.from_name}
+                    <span>({item?.details?.email})</span>
                   </option>
                 ))}
 
@@ -161,7 +228,13 @@ export default function NewCampaignPage() {
               </select>
             </div>
 
-            <DeliveryTime day="monday" />
+            {week.map((item, index) => (
+              <DeliveryTime
+                day={item}
+                callBack={handleDeliveryTime}
+                key={index}
+              />
+            ))}
 
             <div className={styles.formGroup}>
               <label htmlFor="daily_enroll">Prospects number</label>

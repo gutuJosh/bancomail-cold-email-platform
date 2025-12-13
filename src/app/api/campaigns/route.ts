@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 
 const WOODPECKER_API_URL = `${process.env.API_SRV_ROOT}`;
 
@@ -65,27 +64,87 @@ export async function GET(request: Request) {
 
 export async function POST(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const apiKey = cookieStore.get("woodpecker_api_key");
+    const {
+      apiKey,
+      name,
+      email_account_ids,
+      subject,
+      content,
+      settings,
+      timezone,
+      daily_enroll,
+      gdpr_unsubscribe,
+      list_unsubscribe,
+    } = (await request.json()) as {
+      apiKey: string;
+      name: string;
+      email_account_ids: number[];
+      subject: string;
+      content: string;
+      settings: { [key: string]: { from: string; to: string }[] } | {};
+      timezone: string;
+      daily_enroll: number;
+      gdpr_unsubscribe: boolean;
+      list_unsubscribe: boolean;
+    };
 
     if (!apiKey) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { name, subject, content } = await request.json();
-
-    const newCampaign = {
-      id: Date.now(),
-      name,
-      subject,
-      content,
+    const body = {
+      name: name,
+      email_account_ids: email_account_ids,
+      settings: {
+        timezone: timezone,
+        daily_enroll: daily_enroll,
+        gdpr_unsubscribe: gdpr_unsubscribe,
+        list_unsubscribe: list_unsubscribe,
+      },
+      steps: {
+        type: "START",
+        followup: {
+          type: "EMAIL",
+          delivery_time: settings,
+          body: {
+            versions: [
+              {
+                subject: subject,
+                message: content,
+                signature: "SENDER",
+                track_opens: true,
+              },
+            ],
+          },
+        },
+      },
       status: "draft" as const,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      total_prospects: 0,
     };
 
-    return NextResponse.json(newCampaign, { status: 201 });
+    //Make the secure server-to-server request to Woodpecker
+    const wpResponse = await fetch(`${WOODPECKER_API_URL}/v2/campaigns`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // Use the API key received from the client for authorization
+        "x-api-key": `${apiKey}`,
+      },
+      // If the endpoint requires a body add it here:
+      body: JSON.stringify(body),
+    });
+
+    //Handle Woodpecker's response status
+    if (!wpResponse.ok) {
+      const errorData = await wpResponse.json();
+      // Forward the error status/message from Woodpecker to the client
+      return NextResponse.json(errorData, { status: wpResponse.status });
+    }
+
+    const data = await wpResponse.json();
+    data["status"] = "OK";
+    data["statusCode"] = wpResponse.status;
+
+    return NextResponse.json(data, { status: 201 });
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to create campaign" },

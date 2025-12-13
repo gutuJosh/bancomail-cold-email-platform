@@ -8,6 +8,7 @@ import { updateCampaign } from "@/store/slices/campaignsSlice";
 import { campaignsAPI } from "@/services/api";
 import Navbar from "@/components/Navbar/Navbar";
 import UpdateCampaignSettings from "@/components/campaigns/update-campaign-settings";
+import UpdateCampaignSetps from "@/components/campaigns/update-campaign-step";
 import styles from "../../new/new.module.scss";
 
 interface CampaignFormData {
@@ -206,11 +207,17 @@ export default function EditCampaignPage() {
 
           <Suspense fallback={"Loading..."}>
             {campaignData && (
-              <UpdateCampaignSettings
-                campaign_data={campaignData}
-                apiKey={apiKey as string}
-                styles={styles}
-              />
+              <>
+                <UpdateCampaignSettings
+                  campaign_data={campaignData}
+                  apiKey={apiKey as string}
+                  styles={styles}
+                />
+                <UpdateCampaignSetps
+                  apiKey={apiKey as string}
+                  campaign_data={campaignData?.steps?.followup?.delivery_time}
+                />
+              </>
             )}
           </Suspense>
         </div>

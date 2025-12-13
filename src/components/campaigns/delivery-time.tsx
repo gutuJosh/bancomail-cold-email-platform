@@ -1,38 +1,78 @@
 "use client";
-import { useState, useRef, FC } from "react";
+import React, { useState, useEffect, useRef, FC, ChangeEvent } from "react";
 import styles from "../../app/campaigns/new/new.module.scss";
+import { DelieveryTimeProps } from "@/types/global";
 
-interface Props {
-  [id: string]: { from: string; to: string };
+interface RangeProps {
+  from: string;
+  to: string;
 }
 
-const DeliveryTime: FC<{ day: string }> = ({ day }) => {
-  const [range, setRange] = useState<Props[]>([
-    {
-      [`${day}_1`]: { from: "09:00", to: "12:00" },
-    },
-  ]);
+interface Props {
+  day: string;
+  callBack: (obj: DelieveryTimeProps) => void;
+  defaultValue?: undefined | RangeProps[];
+}
+
+const DeliveryTime: FC<Props> = ({ day, callBack, defaultValue }) => {
+  const [range, setRange] = useState<RangeProps[]>(
+    defaultValue !== undefined ? defaultValue : [{ from: "", to: "" }]
+  );
 
   const inputStartRefs = useRef<HTMLInputElement[]>([]);
   const inputEndRefs = useRef<HTMLInputElement[]>([]);
+  const checkbox = useRef<HTMLInputElement>(null);
 
   const addRange = () => {
+    if (checkbox.current && !checkbox.current.checked) {
+      return;
+    }
     const items = [...range];
 
     if (range.length < 3) {
       items.push({
-        [`${day}_${items.length + 1}`]: {
-          from: "09:00",
-          to: "12:00",
-        },
+        from: "",
+        to: "",
       });
     }
     setRange(items);
   };
 
+  const activateDate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.checked) {
+      setRange([{ from: "", to: "" }]);
+      callBack({
+        dayName: day,
+        hours: [{ from: "", to: "" }],
+      });
+    }
+  };
+
+  useEffect(() => {
+    const items = range.filter(
+      (item) => item.from.length > 0 && item.to.length > 0
+    );
+
+    callBack({
+      dayName: day,
+      hours: items,
+    });
+  }, [range]);
+
   return (
     <div className="flex flex-align-center">
-      <div className="uppercase">{day}</div>
+      <div className="uppercase">
+        <input
+          ref={checkbox}
+          type="checkbox"
+          name={day}
+          defaultChecked={defaultValue !== undefined ? true : false}
+          title="Select day"
+          value={day}
+          onChange={(e) => activateDate(e)}
+        />
+        <label htmlFor={day}>{day}</label>
+      </div>
 
       <div className={`flex flex-column`}>
         {range.map((item, index) => (
@@ -48,10 +88,18 @@ const DeliveryTime: FC<{ day: string }> = ({ day }) => {
                 max="23:59"
                 onChange={(e) => {
                   const input = [...range];
-                  input[index][`${day}_${index + 1}`].from = e.target.value;
+                  input[index].from = e.target.value;
                   setRange(input);
                 }}
-                defaultValue={range[index][`${day}_${index + 1}`].from}
+                onBlur={(e) => {
+                  if (!checkbox.current?.checked) {
+                    const input = [...range];
+                    input[index].from = "";
+                    setRange(input);
+                    return;
+                  }
+                }}
+                value={range[index].from}
                 ref={(element) => {
                   if (element) {
                     inputStartRefs.current[inputStartRefs.current.length] =
@@ -71,10 +119,18 @@ const DeliveryTime: FC<{ day: string }> = ({ day }) => {
                 max="23:59"
                 onChange={(e) => {
                   const input = [...range];
-                  input[index][`${day}_${index + 1}`].to = e.target.value;
+                  input[index].to = e.target.value;
                   setRange(input);
                 }}
-                defaultValue={range[index][`${day}_${index + 1}`].to}
+                onBlur={(e) => {
+                  if (!checkbox.current?.checked) {
+                    const input = [...range];
+                    input[index].to = "";
+                    setRange(input);
+                    return;
+                  }
+                }}
+                value={range[index].to}
                 ref={(element) => {
                   if (element) {
                     inputEndRefs.current[inputStartRefs.current.length] =

@@ -57,15 +57,14 @@ const CampaignBox: FC<Properties> = ({
             Bcc Recipients: {campaign.bcc}
           </p>
           <div className={styles.actions}>
-            {status === "DRAFT" ||
-              (status === "EDITED" && (
-                <button
-                  onClick={() => handleEdit(campaign.id)}
-                  className={styles.editBtn}
-                >
-                  Edit
-                </button>
-              ))}
+            {(status === "DRAFT" || status === "EDITED") && (
+              <button
+                onClick={() => handleEdit(campaign.id)}
+                className={styles.editBtn}
+              >
+                Edit
+              </button>
+            )}
             {status === "PAUSED" && (
               <button
                 onClick={() =>

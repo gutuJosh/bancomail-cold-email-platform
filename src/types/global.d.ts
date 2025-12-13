@@ -21,6 +21,7 @@ export type StringKeyedObject = {
 };
 
 export interface CampaignFormData {
+  apiKey?: string;
   name: string;
   subject: string;
   content: string;
@@ -43,4 +44,10 @@ export interface CampaignSettingsProperties {
   daily_enroll: number;
   gdpr_unsubscribe?: boolean;
   list_unsubscribe?: boolean;
+  delivery_time?: { [key: string]: { from: string; to: string }[] };
+}
+
+export interface DelieveryTimeProps {
+  dayName: string;
+  hours: { from: string; to: string }[];
 }
