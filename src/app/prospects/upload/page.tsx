@@ -127,7 +127,7 @@ export default function UploadProspectsPage() {
               <select
                 id="campaign"
                 value={selectedCampaign || ""}
-                onChange={(e) => setSelectedCampaign(Number(e.target.value))}
+                onChange={(e) => setSelectedCampaign(e.target.value)}
                 className={styles.select}
               >
                 <option value="">Choose a campaign...</option>
