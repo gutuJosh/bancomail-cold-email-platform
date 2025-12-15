@@ -20,7 +20,9 @@ A comprehensive email campaign management application built with Next.js, TypeSc
 
 ### 👥 Prospect Management
 
-- Upload prospects via CSV files
+- Upload prospects via CSV files; see prospects-sample.csv file in /config folder.
+Woodpecker provides 15 predefined custom fields specifically for personalization, which are referred to in the API as:
+snippet1, snippet2, ... snippet15. When you upload a prospect list (e.g., a CSV), you map your custom columns (like "Industry," "Custom Link," or "Role") to these available snippet. Once you've populated the snippet1 through snippet15 fields via the API, you can use them for hyper-personalization in your email copy within your Woodpecker campaigns. In the email editor, you would insert the corresponding snippet tag (e.g., {{SNIPPET1}} or {{SNIPPET4}}).
 - CSV validation with detailed error reporting
 - View all prospects with their status
 - Track prospect engagement (pending, sent, opened, replied, bounced)

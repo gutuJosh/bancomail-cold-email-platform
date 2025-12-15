@@ -1,11 +1,15 @@
 "use client";
-import { FC } from "react";
+import { useEffect, FC } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { useAppDispatch } from "@/store/hooks";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import {
+  fetchAccountsStart,
+  fetchAccountsSuccess,
+  fetchAccountsFailure,
+} from "@/store/slices/emailAccountsSlice";
 import { updateCampaign } from "@/store/slices/campaignsSlice";
-import { campaignsAPI } from "@/services/api";
-import styles from "../../campaigns/new/new.module.scss";
+import { campaignsAPI, emailAccountsAPI } from "@/services/api";
 import { CampaignSettingsProperties } from "@/types/global";
 import timezoneOptions from "@/config/timezones.json";
 
@@ -48,6 +52,9 @@ const UpdateCampaignSettings: FC<ComponentProperties> = ({
       list_unsubscribe: campaign_data?.settings?.list_unsubscribe as boolean,
     },
   });
+  const { accounts, loading, error } = useAppSelector(
+    (state) => state.emailAccounts
+  );
 
   const emailAccounts = campaign_data?.email_account_ids as number[];
 
@@ -63,6 +70,36 @@ const UpdateCampaignSettings: FC<ComponentProperties> = ({
       alert("Failed to update campaign");
     }
   };
+
+  useEffect(() => {
+    try {
+      dispatch(fetchAccountsStart());
+      emailAccountsAPI.getAll(apiKey as string).then((response) => {
+        const accounts_data = response.map((item: any) => {
+          const { id, type, details } = item;
+          const { email, provider, signature, from_name } = details;
+          return {
+            id: id,
+            type: type,
+            email: email,
+            provider: provider,
+            signature: signature,
+            from_name: from_name,
+          };
+        });
+
+        dispatch(
+          fetchAccountsSuccess(
+            accounts_data.filter(
+              (item: { type: string }) => item.type === "SMTP"
+            )
+          )
+        );
+      });
+    } catch (error: any) {
+      dispatch(fetchAccountsFailure(error.message));
+    }
+  }, []);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
@@ -99,9 +136,9 @@ const UpdateCampaignSettings: FC<ComponentProperties> = ({
           })}
           className={styles.input}
         >
-          {emailAccounts.map((item, index) => (
-            <option key={index} value={item}>
-              {item}
+          {accounts.map((item, index) => (
+            <option key={index} value={item.id}>
+              {item.email}
             </option>
           ))}
         </select>

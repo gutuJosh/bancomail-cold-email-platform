@@ -65,7 +65,9 @@ const CampaignBox: FC<Properties> = ({
                 Edit
               </button>
             )}
-            {status === "PAUSED" && (
+            {(status === "PAUSED" ||
+              status === "DRAFT" ||
+              status === "EDITED") && (
               <button
                 onClick={() =>
                   handleStart(campaign.id).then((response: string) => {

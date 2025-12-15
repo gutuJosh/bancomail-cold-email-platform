@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { StringKeyedObject } from "@/types/global";
+import { StringKeyedObject, DelieveryTimeProps } from "@/types/global";
 
 const WOODPECKER_API_URL = `${process.env.API_SRV_ROOT}`;
 
@@ -116,6 +116,7 @@ export async function PATCH(
       gdpr_unsubscribe = true,
       list_unsubscribe = true,
       path = null,
+      delivery_time,
     } = data;
 
     if (!apiKey) {
@@ -127,6 +128,7 @@ export async function PATCH(
     const urls: StringKeyedObject = {
       update_step_version: `/v2/campaigns/${id}/steps/${step_id}/versions/${version_id}`,
       update_campaign_settings: `/v2/campaigns/${id}`,
+      update_campaign_steps: `/v2/campaigns/${id}/steps/${step_id}`,
     };
 
     let body = {};
@@ -150,6 +152,12 @@ export async function PATCH(
           auto_pause_prospect_from_domain: true,
           catch_all_verification_mode: "MAXIMUM",
         },
+      };
+    }
+
+    if (path === "update_campaign_steps") {
+      body = {
+        delivery_time: delivery_time,
       };
     }
 

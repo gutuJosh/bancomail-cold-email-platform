@@ -16,7 +16,7 @@ interface CsvRecord {
   country: string;
   industry: string;
   website: string;
-  [key: string]: any;
+  [key: string]: string | number;
 }
 
 export async function POST(req: Request) {

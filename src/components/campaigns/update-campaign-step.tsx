@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useAppDispatch } from "@/store/hooks";
 import { updateCampaign } from "@/store/slices/campaignsSlice";
-import api, { campaignsAPI } from "@/services/api";
+import { campaignsAPI } from "@/services/api";
 import DeliveryTime from "./delivery-time";
 import styles from "../../app/campaigns/new/new.module.scss";
 import { CampaignSettingsProperties, DelieveryTimeProps } from "@/types/global";
@@ -13,6 +13,8 @@ import week from "@/config/days-of-the-week.json";
 
 interface ComponentProperties {
   apiKey: string;
+  step_id: number;
+  campaign_id: number;
   campaign_data: {
     [key: string]: { from: string; to: string }[];
   };
@@ -20,6 +22,8 @@ interface ComponentProperties {
 
 const UpdateCampaignSetps: FC<ComponentProperties> = ({
   apiKey,
+  step_id,
+  campaign_id,
   campaign_data,
 }) => {
   const router = useRouter();
@@ -42,8 +46,9 @@ const UpdateCampaignSetps: FC<ComponentProperties> = ({
           delivery_time[item.dayName] = item.hours;
         });
         data["apiKey"] = apiKey;
+        data["step_id"] = step_id;
         data["delivery_time"] = delivery_time;
-        const updated = await campaignsAPI.update(data.campaign_id, data);
+        const updated = await campaignsAPI.update(campaign_id, data);
         if (updated.status === "OK") {
           alert("The campaign was successfully updated!");
         }
@@ -87,14 +92,18 @@ const UpdateCampaignSetps: FC<ComponentProperties> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+    <form
+      id="delivery-time"
+      onSubmit={handleSubmit(onSubmit)}
+      className={styles.form}
+    >
       <h4 className="page-title">Edit Delivery Time</h4>
       <input type="hidden" id="apiKey" {...register("apiKey")} />
       <input
         type="hidden"
         id="path"
         {...register("path")}
-        value={"update_campaign_settings"}
+        value={"update_campaign_steps"}
       />
 
       {week.map((item, index) => (
@@ -115,7 +124,7 @@ const UpdateCampaignSetps: FC<ComponentProperties> = ({
           Cancel
         </button>
         <button type="submit" className={styles.submitBtn}>
-          Update Settings
+          Update delivery time
         </button>
       </div>
     </form>

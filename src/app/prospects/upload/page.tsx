@@ -149,8 +149,7 @@ export default function UploadProspectsPage() {
                 className={styles.fileInput}
               />
               <p className={styles.hint}>
-                CSV should have columns: email, first_name, last_name, company
-                (optional)
+                You can add up to 20 000 prospects per request
               </p>
             </div>
 

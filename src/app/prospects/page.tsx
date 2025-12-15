@@ -68,6 +68,7 @@ export default function ProspectsPage() {
         <div className="container">
           <div className={styles.header}>
             <h1 className="page-title">Prospects</h1>
+            
             <button
               onClick={() => router.push("/prospects/upload")}
               className={styles.uploadBtn}

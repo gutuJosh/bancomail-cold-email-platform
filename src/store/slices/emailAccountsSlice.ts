@@ -3,6 +3,9 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 export interface EmailAccount {
   id: number;
   type: string;
+  email: string;
+  signature?: string;
+  provider?: string;
   details: {
     email: string;
     provider: string;

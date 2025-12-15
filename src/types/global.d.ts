@@ -45,6 +45,7 @@ export interface CampaignSettingsProperties {
   gdpr_unsubscribe?: boolean;
   list_unsubscribe?: boolean;
   delivery_time?: { [key: string]: { from: string; to: string }[] };
+  step_id?: number;
 }
 
 export interface DelieveryTimeProps {

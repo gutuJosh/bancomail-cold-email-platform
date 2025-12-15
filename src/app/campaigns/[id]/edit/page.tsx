@@ -84,6 +84,38 @@ export default function EditCampaignPage() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!confirm("Are you sure you want to delete this campaign?")) return;
+
+    try {
+      const request = await campaignsAPI.delete(
+        Number(params.id),
+        apiKey as string
+      );
+      const { status } = request;
+      if (status === "OK") {
+        router.push(`/campaigns`);
+      }
+    } catch (error) {
+      alert("Failed to delete campaign");
+    }
+  };
+
+  const handleStart = async () => {
+    try {
+      const request = await campaignsAPI.start(
+        Number(params.id),
+        apiKey as string
+      );
+      if (request.status === "OK") {
+        alert("The camapaign was started successfully!");
+        router.push(`/campaigns`);
+      }
+    } catch (error) {
+      alert("Failed to start campaign");
+    }
+  };
+
   if (!isAuthenticated) return null;
 
   return (
@@ -216,7 +248,23 @@ export default function EditCampaignPage() {
                 <UpdateCampaignSetps
                   apiKey={apiKey as string}
                   campaign_data={campaignData?.steps?.followup?.delivery_time}
+                  step_id={campaignData.steps?.followup?.id as number}
+                  campaign_id={Number(Number(params.id))}
                 />
+                <div className={`flex flex-align-center ${styles.actions}`}>
+                  <button
+                    onClick={() => handleStart()}
+                    className={styles.submitBtn}
+                  >
+                    START CAMPAIGN
+                  </button>
+                  <button
+                    onClick={() => handleDelete()}
+                    className={styles.cancelBtn}
+                  >
+                    DELETE CAMPAIGN
+                  </button>
+                </div>
               </>
             )}
           </Suspense>

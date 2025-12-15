@@ -378,13 +378,16 @@ export default function EmailAccountsPage() {
                   <div className={styles.accountInfo}>
                     <h3>{account.email}</h3>
                     <p>{account.type}</p>
-                    <span className={styles.provider}>{account.provider}</span>
+                    <span className={styles.provider}>{account?.provider}</span>
                   </div>
+
                   <div className={styles.accountActions}>
-                    <span
-                      className={`${styles.badge} ${styles["ACTIVE"]}`}
-                      dangerouslySetInnerHTML={{ __html: account.signature }}
-                    ></span>
+                    {account?.signature && (
+                      <span
+                        className={`${styles.badge} ${styles["ACTIVE"]}`}
+                        dangerouslySetInnerHTML={{ __html: account?.signature }}
+                      ></span>
+                    )}
                     <button
                       onClick={() => handleDelete(account.id)}
                       className={styles.deleteBtn}
