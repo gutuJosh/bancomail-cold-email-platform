@@ -32,7 +32,7 @@ A comprehensive email campaign management application built with Next.js, TypeSc
 - Account status tracking
 - Remove accounts when no longer needed
 
-### ✉️ Inbox Management
+### ✉️ Inbox Management - to do!
 
 - Read received email in response to your campigns
 - Reply to a specific email
@@ -47,7 +47,7 @@ A comprehensive email campaign management application built with Next.js, TypeSc
   - Bounce rates
 - Progress bars for quick insights
 
-### 🎨 User Interface
+### 🎨 User Interface - to do!
 
 - Clean, modern design with gradient backgrounds
 - Responsive layout that works on all devices
