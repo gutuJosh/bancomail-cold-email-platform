@@ -32,6 +32,11 @@ A comprehensive email campaign management application built with Next.js, TypeSc
 - Account status tracking
 - Remove accounts when no longer needed
 
+### ✉️ Inbox Management
+
+- Read received email in response to your campigns
+- Reply to a specific email
+
 ### 📊 Statistics Dashboard
 
 - Campaign performance metrics
@@ -92,7 +97,7 @@ A comprehensive email campaign management application built with Next.js, TypeSc
 
 5. **View Statistics**
 
-   - Go to the Campaigns page and click the "Stats" button inside campaign box with status "SEND", to see campaign performance
+   - Go to the Campaigns page and click the "Stats" button inside campaign box with status "COMPLEATED", to see campaign performance
    - Monitor open rates, reply rates, and bounce rates
 
 6. **Inbox**
