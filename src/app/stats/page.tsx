@@ -15,9 +15,28 @@ import {
 import { statsAPI, campaignsAPI } from "@/services/api";
 import Navbar from "@/components/Navbar/Navbar";
 import styles from "./stats.module.scss";
-
 export default function StatsPage() {
-  const router = useRouter();
+  return (
+    <>
+      <Navbar />
+      <div className={styles.statsPage}>
+        <div className="container">
+          <h1 className="page-title">Campaign Statistics</h1>
+          <div className={styles.emptyState}>
+            <p>
+              No statistics available yet. Start a campaign to see performance
+              metrics.
+            </p>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/*
+export default function StatsPage() {
+const router = useRouter();
   const params = useSearchParams();
   const campaign_id =
     params.get("campaign_id") !== undefined
@@ -34,12 +53,17 @@ export default function StatsPage() {
       router.push("/");
       return;
     }
-    loadData();
+    //loadData();
   }, [isAuthenticated, router]);
 
   const loadData = async () => {
     if (!campaign_id) {
-      return;
+      dispatch(
+        fetchStatsFailure(
+          "No statistics available yet. Start a campaign to see performance metrics."
+        )
+      );
+      return false;
     }
     try {
       dispatch(fetchStatsStart());
@@ -58,12 +82,12 @@ export default function StatsPage() {
     }
   };
 
-  const getCampaignName = (campaignId: number) => {
+  const getCampaignName: (id: number) => string = (campaignId) => {
     const campaign = campaigns.find((c) => c.id === campaignId);
     return campaign?.name || `${campaignName}`;
   };
 
-  if (!isAuthenticated) return null;
+  if (!isAuthenticated || campaign_id === null) return null;
 
   return (
     <>
@@ -87,7 +111,7 @@ export default function StatsPage() {
             <div className={styles.statsList}>
               {stats?.map((stat) => (
                 <div key={stat.id} className={styles.statCard}>
-                  <h3>{getCampaignName(stat.id)}</h3>
+                  <h3>{stat.id}</h3>
 
                   <div className={styles.metricsGrid}>
                     <div className={styles.metric}>
@@ -166,3 +190,4 @@ export default function StatsPage() {
     </>
   );
 }
+  */

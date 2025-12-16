@@ -203,7 +203,7 @@ export default function EditCampaignPage() {
                     <label htmlFor="signature">Signature</label>
                   </p>
                   <span>
-                    Whether to use the sender's email account signature
+                    Whether to use the sender&apos;s email account signature
                   </span>
                 </div>
 
@@ -260,6 +260,7 @@ export default function EditCampaignPage() {
                   >
                     START CAMPAIGN
                   </button>
+
                   <button
                     onClick={() => handleDelete()}
                     className={styles.cancelBtn}
