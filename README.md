@@ -20,9 +20,7 @@ A comprehensive email campaign management application built with Next.js, TypeSc
 
 ### 👥 Prospect Management
 
-- Upload prospects via CSV files; see prospects-sample.csv file in /config folder.
-Woodpecker provides 15 predefined custom fields specifically for personalization, which are referred to in the API as:
-snippet1, snippet2, ... snippet15. When you upload a prospect list (e.g., a CSV), you map your custom columns (like "Industry," "Custom Link," or "Role") to these available snippet. Once you've populated the snippet1 through snippet15 fields via the API, you can use them for hyper-personalization in your email copy within your Woodpecker campaigns. In the email editor, you would insert the corresponding snippet tag (e.g., {{SNIPPET1}} or {{SNIPPET4}}).
+- Upload prospects via CSV files
 - CSV validation with detailed error reporting
 - View all prospects with their status
 - Track prospect engagement (pending, sent, opened, replied, bounced)
@@ -93,17 +91,24 @@ snippet1, snippet2, ... snippet15. When you upload a prospect list (e.g., a CSV)
    - Upload a CSV file with columns: `email`, `first_name`, `last_name`, `company` (optional)
 
 5. **View Statistics**
-   - Go to the Statistics page to see campaign performance
+
+   - Go to the Campaigns page and click the "Stats" button inside campaign box with status "SEND", to see campaign performance
    - Monitor open rates, reply rates, and bounce rates
+
+6. **Inbox**
+
+- Navigate to the Inbox page to see a list inbox messages
+- Click a email maessage box to read the details
+- Send a reply to a specific message
 
 ## CSV Format for Prospects
 
 Your CSV file should have the following columns:
 
 ```csv
-email,first_name,last_name,company
-john.doe@example.com,John,Doe,Example Corp
-jane.smith@example.com,Jane,Smith,Tech Inc
+email,first_name,last_name,company,phone,address,city,state,country,industry,website,email_provider
+john.doe@example.com,John,Doe,Example Corp,3565133101,piazza della Vittoria,Genova,GE,IT,softwear,www.neosoft.it,bancomail
+jane.smith@example.com,Jane,Smith,Tech Inc,3682174151,via dei Mille 44,Genova,GE,IT,softwear,www.menufinder.it,bancomail
 ```
 
 Required columns:
@@ -115,6 +120,11 @@ Required columns:
 Optional columns:
 
 - `company`: Company name
+  Sample File: see prospects-sample.csv file in /config folder.
+
+Custom Fileds:
+Woodpecker provides 15 predefined custom fields specifically for personalization, which are referred to in the API as:
+snippet1, snippet2, ... snippet15. When you upload a prospect list (e.g., a CSV), you map your custom columns (like "Industry," "Custom Link," or "Role") to these available snippet. Once you've populated the snippet1 through snippet15 fields via the API, you can use them for hyper-personalization in your email copy within your Woodpecker campaigns. In the email editor, you would insert the corresponding snippet tag (e.g., {{SNIPPET1}} or {{SNIPPET4}}).
 
 ## Project Structure
 
@@ -125,7 +135,8 @@ src/
 │   ├── campaigns/            # Campaign pages
 │   ├── prospects/            # Prospect pages
 │   ├── email-accounts/       # Email account pages
-│   ├── stats/                # Statistics page
+│   ├── stats/campaign_id.    # Statistics page
+│   ├── inbox                 # Inbox page
 │   └── dashboard/            # Main dashboard
 ├── components/               # Reusable React components
 ├── store/                    # Redux store and slices
@@ -136,18 +147,15 @@ src/
 
 ## API Integration
 
-The application currently uses mock data for development. To integrate with the actual Woodpecker API:
+The application uses the actual Woodpecker API:
 
-1. Update the API routes in `src/app/api/` to make real requests to Woodpecker's endpoints
-2. Use the stored API key from cookies for authentication
-3. Transform responses to match the application's data models
-4. Handle errors appropriately
+1. Read the docu here `https://developers.woodpecker.co/docs/`
 
 ## Environment Variables
 
 The following environment variables are available:
 
-- `DATABASE_URL`: PostgreSQL connection string
+- `DATABASE_URL`: MySQL connection string
 - `SESSION_SECRET`: Secret for session management
 
 ## Scripts
@@ -219,7 +227,8 @@ Potential improvements for future versions:
 1. Log in to your Woodpecker account
 2. Navigate to Settings → API
 3. Generate or copy your API key
-4. Use this key to log in to the application
+4. Assign the key to NEXT_PUBLIC_AUTHENTICATION_KEY variable in .env file
+5. Use this key to log in to the application
 
 ## Support
 

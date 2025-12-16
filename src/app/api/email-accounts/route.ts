@@ -137,6 +137,7 @@ export async function POST(request: NextRequest) {
     //Handle Woodpecker's response status
     if (!wpChekEmailBoxStatus.ok) {
       const errorData = await wpResponse.json();
+      //console.log("----->", errorData);
       // Forward the error status/message from Woodpecker to the client
       return NextResponse.json(errorData, { status: wpResponse.status });
     }
@@ -144,8 +145,8 @@ export async function POST(request: NextRequest) {
     email_box["statusCode"] = wpResponse.status;
     email_box["status"] = email_box.failed_mailboxes_count === 0 ? "OK" : "KO";
     email_box["body"] = body;
-
-    return NextResponse.json(data, { status: 200 });
+    //console.log("SUCCESS----->", email_box);
+    return NextResponse.json(email_box, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to create account" },

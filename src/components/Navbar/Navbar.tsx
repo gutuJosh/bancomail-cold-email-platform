@@ -42,9 +42,11 @@ export default function Navbar() {
           <li>
             <Link href="/email-accounts">Email Accounts</Link>
           </li>
+          {/*
           <li>
             <Link href="/stats">Statistics</Link>
           </li>
+          */}
           <li>
             <Link href="/inbox">Inbox</Link>
           </li>

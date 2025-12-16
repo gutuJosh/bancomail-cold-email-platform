@@ -251,7 +251,9 @@ export default function EditCampaignPage() {
                   step_id={campaignData.steps?.followup?.id as number}
                   campaign_id={Number(Number(params.id))}
                 />
-                <div className={`flex flex-align-center ${styles.actions}`}>
+                <div
+                  className={`mt-8 flex flex-align-center flex-align-middle ${styles.form}`}
+                >
                   <button
                     onClick={() => handleStart()}
                     className={styles.submitBtn}
