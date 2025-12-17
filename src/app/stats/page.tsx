@@ -15,28 +15,9 @@ import {
 import { statsAPI, campaignsAPI } from "@/services/api";
 import Navbar from "@/components/Navbar/Navbar";
 import styles from "./stats.module.scss";
-export default function StatsPage() {
-  return (
-    <>
-      <Navbar />
-      <div className={styles.statsPage}>
-        <div className="container">
-          <h1 className="page-title">Campaign Statistics</h1>
-          <div className={styles.emptyState}>
-            <p>
-              No statistics available yet. Start a campaign to see performance
-              metrics.
-            </p>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
 
-/*
 export default function StatsPage() {
-const router = useRouter();
+  const router = useRouter();
   const params = useSearchParams();
   const campaign_id =
     params.get("campaign_id") !== undefined
@@ -190,4 +171,3 @@ const router = useRouter();
     </>
   );
 }
-  */
